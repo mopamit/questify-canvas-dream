@@ -45,10 +45,39 @@ export function ScoreHud({ onOpenBriefing, totalSeconds = 600 }: Props) {
           LAB X23
         </Link>
 
-        <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+        <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+          {/* Mission timer */}
+          <div
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-mono font-bold tracking-wider ${
+              danger
+                ? "border-destructive/60 bg-destructive/15 text-destructive animate-pulse"
+                : "border-primary/40 bg-primary/10 text-primary"
+            }`}
+            title="זמן שנותר למשימה"
+          >
+            <span>⏱</span>
+            <span>{mm}:{ss}</span>
+          </div>
+
+          <button
+            onClick={() => {
+              const next = !muted;
+              setMuted(next);
+              sfx.setMuted(next);
+              if (!next) sfx.click();
+            }}
+            className="px-2 py-1.5 rounded-full border border-border bg-secondary/60 hover:bg-secondary text-foreground/80 transition-colors"
+            title={muted ? "הפעל סאונד" : "השתק"}
+          >
+            {muted ? "🔇" : "🔊"}
+          </button>
+
           {onOpenBriefing && (
             <button
-              onClick={onOpenBriefing}
+              onClick={() => {
+                sfx.click();
+                onOpenBriefing();
+              }}
               className="px-3 py-1.5 rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary font-display tracking-wider transition-colors"
               title="פתח שוב את הודעת הפתיחה"
             >
