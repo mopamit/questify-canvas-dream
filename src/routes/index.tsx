@@ -33,10 +33,17 @@ function Index() {
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
 
   // Re-render when turn counter changes (room locks countdown)
-  useEffect(() => {}, []);
+  // Victory sound when all rooms solved
+  useEffect(() => {
+    if (allDone) sfx.victory();
+  }, [allDone]);
 
   function tryOpenRoom(room: Room) {
-    if (gameActions.isLocked(room.id)) return;
+    if (gameActions.isLocked(room.id)) {
+      sfx.wrong();
+      return;
+    }
+    sfx.doorOpen();
     setActiveRoom(room);
   }
 
