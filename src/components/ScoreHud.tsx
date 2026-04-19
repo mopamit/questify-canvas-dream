@@ -1,14 +1,38 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useGame } from "@/lib/game-store";
 import { rooms } from "@/lib/game-data";
+import { sfx } from "@/lib/sound";
 
 type Props = {
   onOpenBriefing?: () => void;
+  /** Total mission seconds (default 10 min) */
+  totalSeconds?: number;
 };
 
-export function ScoreHud({ onOpenBriefing }: Props) {
+export function ScoreHud({ onOpenBriefing, totalSeconds = 600 }: Props) {
   const { score, solved } = useGame();
   const solvedCount = Object.values(solved).filter(Boolean).length;
+  const allDone = solvedCount === rooms.length;
+
+  const [remaining, setRemaining] = useState(totalSeconds);
+  const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    if (allDone) return;
+    const id = setInterval(() => {
+      setRemaining((r) => (r > 0 ? r - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [allDone]);
+
+  useEffect(() => {
+    if (!allDone && remaining > 0 && remaining <= 10) sfx.tick();
+  }, [remaining, allDone]);
+
+  const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
+  const ss = String(remaining % 60).padStart(2, "0");
+  const danger = remaining <= 60;
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border">
