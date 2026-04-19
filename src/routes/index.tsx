@@ -287,10 +287,15 @@ function Index() {
                     {isLocked && (
                       <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px]">
                         <div className="text-center">
-                          <div className="text-5xl mb-2">🔒</div>
+                          <div className="text-5xl mb-2 lock-icon">🔒</div>
                           <div className="text-xs font-display tracking-wider text-destructive">
                             נעול ל־{turnsLeft} {turnsLeft === 1 ? "תור" : "תורות"}
                           </div>
+                          {keys > 0 && (
+                            <div className="mt-2 text-[10px] font-display tracking-[0.2em] text-[oklch(0.78_0.18_70)] animate-pulse">
+                              גררו לכאן 🗝️ כדי לפתוח
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
