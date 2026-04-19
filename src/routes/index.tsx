@@ -175,8 +175,9 @@ function Index() {
                         {isSolved ? "פתור" : isLocked ? `נעול · ${turnsLeft}` : "פתוח"}
                       </span>
                     </div>
-                    <div className="absolute top-3 right-3 font-display font-black text-3xl text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                      0{room.number}
+                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-background/85 backdrop-blur font-display font-black text-base text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                      <span className={`text-glow-cyan`}>{room.number}</span>
+                      <span className="text-foreground/60"> / 7</span>
                     </div>
 
                     {/* Lock overlay */}
