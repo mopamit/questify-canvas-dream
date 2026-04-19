@@ -437,7 +437,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
           <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch">
             <button
               onClick={onClose}
-              className="flex-1 py-3 px-5 rounded-xl border border-border bg-secondary/70 hover:bg-secondary font-display font-semibold transition-colors"
+              className="flex-1 py-3 px-5 rounded-xl border border-border bg-secondary/70 font-display font-semibold transition-all hover:bg-[oklch(0.85_0.18_150)]/30 hover:border-[oklch(0.85_0.20_150)] hover:text-[oklch(0.95_0.15_150)] hover:shadow-[0_0_20px_oklch(0.75_0.22_150/0.6),inset_0_0_15px_oklch(0.75_0.22_150/0.25)]"
             >
               חזרה למסדרון →
             </button>
