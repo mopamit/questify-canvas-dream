@@ -222,10 +222,19 @@ function Index() {
                 <button
                   key={room.id}
                   onClick={() => tryOpenRoom(room)}
-                  disabled={isLocked}
+                  disabled={isLocked && keys === 0}
+                  onDragOver={(e) => {
+                    if (isLocked && keys > 0) {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                    }
+                  }}
+                  onDrop={(e) => handleKeyDrop(e, room)}
                   className={`group relative rounded-2xl overflow-hidden border bg-card/40 backdrop-blur-sm transition-all duration-500 text-right ${
                     isLocked
-                      ? "border-destructive/40 cursor-not-allowed opacity-70"
+                      ? keys > 0
+                        ? "border-[oklch(0.78_0.18_70)]/60 cursor-pointer drop-target-key"
+                        : "border-destructive/40 cursor-not-allowed opacity-70"
                       : isSolved
                       ? "border-success/70 shadow-[0_0_30px_oklch(0.78_0.2_155/30%)] hover:scale-[1.02]"
                       : "border-border hover:scale-[1.03] hover:border-primary/60 hover:shadow-neon-cyan"
