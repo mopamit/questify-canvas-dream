@@ -434,7 +434,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
             >
               חזרה למסדרון →
             </button>
-            {(feedback?.correctPicked || isSolved) && (
+            {feedback?.correctPicked && (
               <div className="flex-1 py-3 px-5 rounded-xl bg-gradient-neon font-display font-bold text-background text-center tracking-wider">
                 ✓ החדר נפתר
               </div>
