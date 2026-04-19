@@ -207,9 +207,7 @@ function Index() {
           <div className="text-center mb-8">
             <h2 className="text-3xl sm:text-5xl font-display font-black drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]">
               <span className="text-glow-cyan">בחרו </span>
-              <span className="text-accent text-glow-magenta">ח</span>
-              <span className="text-glow-cyan">ד</span>
-              <span className="text-accent text-glow-magenta">ר</span>
+              <span className="text-glow-cyan">חדר</span>
             </h2>
             <p className="text-xs sm:text-sm font-display tracking-[0.3em] text-white mt-3 uppercase">
               מסדרון המעבדה · {solvedCount}/{rooms.length} פתורים
