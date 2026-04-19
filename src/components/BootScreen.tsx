@@ -72,14 +72,14 @@ export function BootScreen({ open, onClose }: Props) {
               {/* Tabs */}
               <div className="flex border-b border-primary/20 bg-black/20">
                 <button
-                  onClick={() => setTab("briefing")}
+                  onClick={() => setTab("opening")}
                   className={`flex-1 px-4 py-2 font-display text-xs sm:text-sm tracking-widest transition-colors ${
-                    tab === "briefing"
+                    tab === "opening"
                       ? "text-primary text-glow-cyan border-b-2 border-primary bg-primary/5"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  // בריפינג
+                  // פתיחה
                 </button>
                 <button
                   onClick={() => setTab("instructions")}
@@ -98,7 +98,7 @@ export function BootScreen({ open, onClose }: Props) {
                 className="p-6 sm:p-10 min-h-[420px] sm:min-h-[460px] text-right"
                 style={{ fontFamily: "var(--font-body)" }}
               >
-                {tab === "briefing" ? (
+                {tab === "opening" ? (
                   <>
                     {/* Boot lines */}
                     <div className="space-y-1 text-primary text-glow-cyan font-mono text-sm sm:text-base mb-6">
@@ -119,7 +119,7 @@ export function BootScreen({ open, onClose }: Props) {
                     {step >= 1 && (
                       <div className="mb-5">
                         <div className="text-xs font-display tracking-[0.3em] text-accent text-glow-magenta mb-2">
-                          // בריפינג
+                          // פתיחה
                         </div>
                         <p className="text-foreground/95 text-base sm:text-lg leading-relaxed">
                           <Typewriter
@@ -192,10 +192,10 @@ export function BootScreen({ open, onClose }: Props) {
                     </ul>
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                       <button
-                        onClick={() => setTab("briefing")}
+                        onClick={() => setTab("opening")}
                         className="text-xs sm:text-sm font-display tracking-wider text-primary hover:text-primary/80 underline-offset-4 hover:underline transition-colors"
                       >
-                        חזרה לבריפינג →
+                        חזרה לפתיחה →
                       </button>
                       <button
                         onClick={onClose}
