@@ -7,6 +7,7 @@ import { BootScreen } from "@/components/BootScreen";
 import { RoomDialog } from "@/components/RoomDialog";
 import { NameScanner } from "@/components/NameScanner";
 import { KeyAward } from "@/components/KeyAward";
+import { FuturisticBg } from "@/components/FuturisticBg";
 import { sfx } from "@/lib/sound";
 import corridorBg from "@/assets/corridor.jpg";
 import creatureImg from "@/assets/creature.png";
@@ -90,6 +91,7 @@ function Index() {
 
   return (
     <>
+      <FuturisticBg />
       <ScoreHud
         onOpenBriefing={() => setBootOpen(true)}
         onReset={handleReset}
