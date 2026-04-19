@@ -13,7 +13,13 @@ const accentMap: Record<Room["accent"], { glow: string; text: string; bar: strin
   blue:    { glow: "shadow-neon-cyan",    text: "text-glow-cyan",    bar: "bg-primary" },
 };
 
-type Feedback = { correctPicked: boolean; delta: number; wrongReason?: string };
+type Feedback = {
+  correctPicked: boolean;
+  delta: number;
+  wrongReason?: string;
+  /** auto-close timer when wrong */
+  autoCloseAt?: number;
+};
 
 type Props = {
   room: Room | null;
@@ -26,6 +32,8 @@ export function RoomDialog({ room, open, onClose }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [openCard, setOpenCard] = useState<number | null>(null);
+  const [viewed, setViewed] = useState<Set<number>>(new Set());
+  const [closingIn, setClosingIn] = useState<number>(0);
 
   // Reset state whenever a new room opens
   useEffect(() => {
@@ -33,30 +41,56 @@ export function RoomDialog({ room, open, onClose }: Props) {
       setSelected(null);
       setFeedback(null);
       setOpenCard(null);
+      setViewed(new Set());
+      setClosingIn(0);
       gameActions.startRoom(room.id);
     }
   }, [open, room]);
 
+  // Auto-close countdown after wrong answer (4s)
+  useEffect(() => {
+    if (!feedback || feedback.correctPicked) return;
+    setClosingIn(4);
+    const interval = setInterval(() => {
+      setClosingIn((c) => {
+        if (c <= 1) {
+          clearInterval(interval);
+          onClose();
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [feedback, onClose]);
+
   if (!room) return null;
   const a = accentMap[room.accent];
   const isSolved = !!solved[room.id];
+  const allViewed = viewed.size === room.facts.length;
+
+  function toggleCard(i: number) {
+    setViewed((prev) => {
+      if (prev.has(i)) return prev;
+      const next = new Set(prev);
+      next.add(i);
+      return next;
+    });
+    setOpenCard((cur) => (cur === i ? null : i));
+  }
 
   function pick(i: number) {
     if (!room) return;
+    if (!allViewed) return;
     const opt = room.options[i];
-    if (feedback?.correctPicked || isSolved) return;
+    if (feedback || isSolved) return;
     setSelected(i);
-    const delta = gameActions.answer(room.id, opt.correct);
+    const result = gameActions.answer(room.id, opt.correct);
     setFeedback({
       correctPicked: opt.correct,
-      delta,
+      delta: result.delta,
       wrongReason: opt.correct ? undefined : opt.wrongReason,
     });
-  }
-
-  function tryAgain() {
-    setSelected(null);
-    setFeedback(null);
   }
 
   return (
@@ -74,7 +108,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
             width={1280}
             height={896}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
           <div className={`absolute -bottom-px left-8 right-8 h-px ${a.bar} opacity-90`} />
 
           <div className="absolute bottom-4 right-6 left-6 text-right">
@@ -93,10 +127,188 @@ export function RoomDialog({ room, open, onClose }: Props) {
         </div>
 
         <div className="p-6 sm:p-8">
+          {/* Hidden hologram cards — FIRST, must view all before answering */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-xs font-display font-bold tracking-[0.3em] text-muted-foreground uppercase">
+                כרטיסי הולוגרמה · לחצו על כל אחד
+              </span>
+              <span className="flex-1 h-px bg-border" />
+              <span
+                className={`text-xs font-display font-bold tracking-wider ${
+                  allViewed ? "text-success" : "text-accent"
+                }`}
+              >
+                {viewed.size}/{room.facts.length}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {room.facts.map((fact, i) => {
+                const isOpen = openCard === i;
+                const wasViewed = viewed.has(i);
+                // Color tokens: green (viewed), cyan (not viewed)
+                const ringColor = wasViewed
+                  ? "oklch(0.78_0.2_155)"
+                  : "oklch(0.82_0.2_195)";
+                return (
+                  <button
+                    key={i}
+                    onClick={() => toggleCard(i)}
+                    className={`group relative text-right rounded-xl border overflow-hidden transition-all duration-300 ${
+                      isOpen
+                        ? wasViewed
+                          ? "border-success bg-success/5 sm:col-span-3"
+                          : "border-primary bg-primary/5 sm:col-span-3"
+                        : wasViewed
+                        ? "border-success/60 bg-success/5 hover:border-success"
+                        : "border-border bg-background/40 hover:border-primary/60 hover:-translate-y-0.5"
+                    }`}
+                    style={{
+                      boxShadow: isOpen
+                        ? `0 0 30px ${ringColor.replace(")", "/30%)")}`
+                        : undefined,
+                    }}
+                  >
+                    {!isOpen ? (
+                      // Closed state — contained hologram preview
+                      <div className="relative p-3 h-44 flex flex-col items-center justify-between overflow-hidden">
+                        <div className="absolute top-2 left-2 text-[9px] font-mono tracking-wider z-10"
+                          style={{ color: wasViewed ? "oklch(0.78 0.2 155 / 80%)" : "oklch(0.82 0.2 195 / 70%)" }}
+                        >
+                          HOLO_{i + 1}
+                        </div>
+                        {wasViewed && (
+                          <div className="absolute top-2 right-2 text-[10px] font-display font-bold tracking-wider text-success z-10">
+                            ✓ נצפה
+                          </div>
+                        )}
+                        {/* Hologram image — contained */}
+                        <div className="relative flex-1 w-full flex items-center justify-center pt-3 min-h-0">
+                          <img
+                            src={fact.image}
+                            alt={fact.name}
+                            loading="lazy"
+                            width={512}
+                            height={512}
+                            className={`max-h-[88%] max-w-[80%] object-contain animate-float ${
+                              wasViewed ? "" : "mix-blend-screen opacity-90"
+                            }`}
+                            style={{
+                              filter: wasViewed
+                                ? "drop-shadow(0 0 14px oklch(0.78 0.2 155 / 60%))"
+                                : "drop-shadow(0 0 14px oklch(0.82 0.2 195 / 60%))",
+                            }}
+                          />
+                          {/* Scan lines */}
+                          <div
+                            className="pointer-events-none absolute inset-0"
+                            style={{
+                              backgroundImage: wasViewed
+                                ? "repeating-linear-gradient(0deg,transparent 0,transparent 3px,oklch(0.78 0.2 155 / 12%) 3px,oklch(0.78 0.2 155 / 12%) 4px)"
+                                : "repeating-linear-gradient(0deg,transparent 0,transparent 3px,oklch(0.82 0.2 195 / 12%) 3px,oklch(0.82 0.2 195 / 12%) 4px)",
+                            }}
+                          />
+                        </div>
+                        {/* Holographic disc base */}
+                        <div className="relative w-3/4 h-2 rounded-[50%] mt-1"
+                          style={{
+                            background: wasViewed
+                              ? "radial-gradient(ellipse at center, oklch(0.78 0.2 155 / 70%), transparent 70%)"
+                              : "radial-gradient(ellipse at center, oklch(0.82 0.2 195 / 70%), transparent 70%)",
+                            filter: "blur(1px)",
+                          }}
+                        />
+                        <div
+                          className="relative mt-1 text-xs font-display font-semibold tracking-wider text-center"
+                          style={{ color: wasViewed ? "oklch(0.78 0.2 155)" : "oklch(0.82 0.2 195)" }}
+                        >
+                          {fact.name}
+                        </div>
+                      </div>
+                    ) : (
+                      // Open state — info panel
+                      <div className="p-5 animate-[fade-in_0.3s_ease-out]">
+                        <div className="flex items-start gap-4">
+                          <div
+                            className="relative shrink-0 w-28 h-28 sm:w-36 sm:h-36 rounded-xl overflow-hidden flex items-center justify-center"
+                            style={{
+                              background: wasViewed
+                                ? "oklch(0.78 0.2 155 / 8%)"
+                                : "oklch(0.82 0.2 195 / 8%)",
+                              border: wasViewed
+                                ? "1px solid oklch(0.78 0.2 155 / 40%)"
+                                : "1px solid oklch(0.82 0.2 195 / 40%)",
+                            }}
+                          >
+                            <img
+                              src={fact.image}
+                              alt={fact.name}
+                              loading="lazy"
+                              width={512}
+                              height={512}
+                              className="w-full h-full object-contain p-2"
+                              style={{
+                                filter: wasViewed
+                                  ? "drop-shadow(0 0 16px oklch(0.78 0.2 155 / 60%))"
+                                  : "drop-shadow(0 0 16px oklch(0.82 0.2 195 / 60%))",
+                              }}
+                            />
+                            <div
+                              className="pointer-events-none absolute inset-0"
+                              style={{
+                                backgroundImage: wasViewed
+                                  ? "repeating-linear-gradient(0deg,transparent 0,transparent 3px,oklch(0.78 0.2 155 / 14%) 3px,oklch(0.78 0.2 155 / 14%) 4px)"
+                                  : "repeating-linear-gradient(0deg,transparent 0,transparent 3px,oklch(0.82 0.2 195 / 14%) 3px,oklch(0.82 0.2 195 / 14%) 4px)",
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1 text-right">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <div
+                                  className="text-[10px] font-mono tracking-widest mb-1"
+                                  style={{
+                                    color: wasViewed
+                                      ? "oklch(0.78 0.2 155 / 80%)"
+                                      : "oklch(0.82 0.2 195 / 80%)",
+                                  }}
+                                >
+                                  HOLO_{i + 1} · DECRYPTED
+                                </div>
+                                <h4
+                                  className={`font-display font-bold text-lg ${
+                                    wasViewed ? "text-success" : "text-primary text-glow-cyan"
+                                  }`}
+                                >
+                                  {fact.name}
+                                </h4>
+                              </div>
+                              <span className="text-xs text-muted-foreground">[סגרו ✕]</span>
+                            </div>
+                            <p className="text-sm text-foreground/90 leading-relaxed">
+                              {fact.fact}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Question */}
           <h2 className="text-lg sm:text-xl font-display font-bold mb-5 leading-relaxed text-center">
             {room.question}
           </h2>
+
+          {/* Hint when not all viewed */}
+          {!allViewed && !feedback && (
+            <div className="mb-4 text-center text-xs sm:text-sm text-accent font-display tracking-wider animate-pulse">
+              ↑ לחצו על כל 3 ההולוגרמות כדי לחשוף את האפשרויות
+            </div>
+          )}
 
           {/* Options */}
           <div className="space-y-3">
@@ -104,17 +316,20 @@ export function RoomDialog({ room, open, onClose }: Props) {
               const isSel = selected === i;
               const showAsCorrect = feedback && opt.correct && (feedback.correctPicked || isSel);
               const showAsWrong = feedback && isSel && !opt.correct;
+              const disabled = !allViewed || !!feedback || isSolved;
               return (
                 <button
                   key={i}
                   onClick={() => pick(i)}
-                  disabled={!!feedback?.correctPicked || isSolved}
+                  disabled={disabled}
                   className={`w-full text-right px-5 py-4 rounded-xl border transition-all duration-300
                     ${
                       showAsCorrect
                         ? "border-success bg-success/15 text-success shadow-[0_0_30px_oklch(0.78_0.2_155/40%)]"
                         : showAsWrong
                         ? "border-destructive bg-destructive/15 text-destructive"
+                        : !allViewed
+                        ? "border-border/50 bg-secondary/30 text-muted-foreground cursor-not-allowed opacity-60"
                         : "border-border bg-secondary/60 hover:border-primary hover:bg-secondary/80 hover:translate-x-[-4px]"
                     }
                     disabled:cursor-not-allowed`}
@@ -150,107 +365,18 @@ export function RoomDialog({ room, open, onClose }: Props) {
                   <div className="font-display font-bold text-destructive text-lg mb-2">
                     תשובה שגויה · {feedback.delta} נקודות
                   </div>
-                  <p className="text-sm text-foreground/90 leading-relaxed">
+                  <p className="text-sm text-foreground/90 leading-relaxed mb-3">
                     {feedback.wrongReason ?? "זו אינה התשובה הנכונה."}
                   </p>
-                  <button
-                    onClick={tryAgain}
-                    className="mt-3 px-4 py-2 rounded-lg border border-destructive/40 bg-destructive/10 hover:bg-destructive/20 text-destructive text-sm font-display font-semibold transition-colors"
-                  >
-                    נסו שוב ←
-                  </button>
+                  <div className="text-xs font-display tracking-wider text-destructive/90">
+                    🔒 החדר נעול ל־2 תורות. חוזרים למסדרון בעוד {closingIn} שניות…
+                  </div>
                 </>
               )}
             </div>
           )}
 
-          {/* Hidden hologram cards */}
-          <div className="mt-8">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-xs font-display font-bold tracking-[0.3em] text-muted-foreground uppercase">
-                כרטיסי הולוגרמה · לחצו לחשיפה
-              </span>
-              <span className="flex-1 h-px bg-border" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {room.facts.map((fact, i) => {
-                const isOpen = openCard === i;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => setOpenCard(isOpen ? null : i)}
-                    className={`group relative text-right rounded-xl border overflow-hidden transition-all duration-300 ${
-                      isOpen
-                        ? "border-primary bg-primary/5 shadow-neon-cyan sm:col-span-3"
-                        : "border-border bg-background/40 hover:border-primary/60 hover:-translate-y-0.5"
-                    }`}
-                  >
-                    {!isOpen ? (
-                      // Hologram closed state — animal hologram preview
-                      <div className="relative p-3 h-44 flex flex-col items-center justify-end overflow-hidden">
-                        {/* Holographic disc */}
-                        <div className="absolute inset-x-4 bottom-10 h-3 rounded-[50%] bg-[radial-gradient(ellipse_at_center,oklch(0.82_0.2_195/60%),transparent_70%)] blur-[1px]" />
-                        {/* Hologram image */}
-                        <div className="relative flex-1 w-full flex items-center justify-center">
-                          <img
-                            src={fact.image}
-                            alt={fact.name}
-                            loading="lazy"
-                            width={512}
-                            height={512}
-                            className="max-h-full max-w-full object-contain drop-shadow-[0_0_18px_oklch(0.82_0.2_195/60%)] opacity-90 mix-blend-screen animate-float"
-                          />
-                          {/* Scan-line overlay */}
-                          <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent_0,transparent_3px,oklch(0.82_0.2_195/12%)_3px,oklch(0.82_0.2_195/12%)_4px)]" />
-                        </div>
-                        <div className="relative mt-1 text-xs font-display font-semibold text-primary/95 tracking-wider text-center">
-                          {fact.name}
-                        </div>
-                        <div className="absolute top-2 left-2 text-[9px] font-mono text-primary/60 tracking-wider">
-                          HOLO_{i + 1}
-                        </div>
-                      </div>
-                    ) : (
-                      // Open state — full hologram + info
-                      <div className="p-5 animate-[fade-in_0.3s_ease-out]">
-                        <div className="flex items-start gap-4">
-                          <div className="relative shrink-0 w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-primary/5 border border-primary/30 overflow-hidden flex items-center justify-center">
-                            <img
-                              src={fact.image}
-                              alt={fact.name}
-                              loading="lazy"
-                              width={512}
-                              height={512}
-                              className="w-full h-full object-contain drop-shadow-[0_0_20px_oklch(0.82_0.2_195/70%)] mix-blend-screen"
-                            />
-                            <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent_0,transparent_3px,oklch(0.82_0.2_195/15%)_3px,oklch(0.82_0.2_195/15%)_4px)]" />
-                          </div>
-                          <div className="flex-1 text-right">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-1">
-                                  HOLO_{i + 1} · DECRYPTED
-                                </div>
-                                <h4 className="font-display font-bold text-lg text-primary text-glow-cyan">
-                                  {fact.name}
-                                </h4>
-                              </div>
-                              <span className="text-xs text-muted-foreground">[סגרו ✕]</span>
-                            </div>
-                            <p className="text-sm text-foreground/90 leading-relaxed">
-                              {fact.fact}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Footer — back to corridor (always available) */}
+          {/* Footer */}
           <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch">
             <button
               onClick={onClose}
