@@ -86,14 +86,28 @@ export function ScoreHud({ onOpenBriefing, onReset, totalSeconds = 600 }: Props)
             </button>
           )}
 
-          {/* Bonus keys */}
+          {/* Bonus keys — draggable to a locked room */}
           <div
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-display tracking-wider ${
+            draggable={keys > 0}
+            onDragStart={(e) => {
+              if (keys <= 0) return;
+              e.dataTransfer.setData("text/plain", "bonus-key");
+              e.dataTransfer.effectAllowed = "move";
+              document.body.classList.add("dragging-key");
+            }}
+            onDragEnd={() => {
+              document.body.classList.remove("dragging-key");
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-display tracking-wider select-none ${
               keys > 0
-                ? "border-[oklch(0.78_0.18_70)]/60 bg-[oklch(0.78_0.18_70)]/15 text-[oklch(0.78_0.18_70)] animate-pulse-glow"
+                ? "border-[oklch(0.78_0.18_70)]/60 bg-[oklch(0.78_0.18_70)]/15 text-[oklch(0.78_0.18_70)] animate-pulse-glow cursor-grab active:cursor-grabbing"
                 : "border-border bg-secondary/40 text-muted-foreground"
             }`}
-            title={`מפתחות בונוס · רצף נוכחי: ${streak}/2`}
+            title={
+              keys > 0
+                ? "גררו את המפתח אל חדר נעול כדי לפתוח אותו"
+                : `מפתחות בונוס · רצף נוכחי: ${streak}/2`
+            }
           >
             <span>🗝️</span>
             <span className="font-bold">{keys}</span>

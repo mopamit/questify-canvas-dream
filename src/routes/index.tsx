@@ -62,21 +62,22 @@ function Index() {
 
   function tryOpenRoom(room: Room) {
     if (gameActions.isLocked(room.id)) {
-      if (keys > 0) {
-        const ok = window.confirm(
-          `החדר נעול. להשתמש במפתח בונוס כדי לפתוח אותו עכשיו? (נותרו: ${keys})`,
-        );
-        if (ok && gameActions.useKey(room.id)) {
-          sfx.doorOpen();
-          setActiveRoom(room);
-          return;
-        }
-      }
       sfx.wrong();
       return;
     }
     sfx.doorOpen();
     setActiveRoom(room);
+  }
+
+  function handleKeyDrop(e: React.DragEvent, room: Room) {
+    e.preventDefault();
+    document.body.classList.remove("dragging-key");
+    if (e.dataTransfer.getData("text/plain") !== "bonus-key") return;
+    if (!gameActions.isLocked(room.id)) return;
+    if (gameActions.useKey(room.id)) {
+      sfx.doorOpen();
+      setActiveRoom(room);
+    }
   }
 
   function handleReset() {
@@ -221,10 +222,19 @@ function Index() {
                 <button
                   key={room.id}
                   onClick={() => tryOpenRoom(room)}
-                  disabled={isLocked}
+                  disabled={isLocked && keys === 0}
+                  onDragOver={(e) => {
+                    if (isLocked && keys > 0) {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                    }
+                  }}
+                  onDrop={(e) => handleKeyDrop(e, room)}
                   className={`group relative rounded-2xl overflow-hidden border bg-card/40 backdrop-blur-sm transition-all duration-500 text-right ${
                     isLocked
-                      ? "border-destructive/40 cursor-not-allowed opacity-70"
+                      ? keys > 0
+                        ? "border-[oklch(0.78_0.18_70)]/60 cursor-pointer drop-target-key"
+                        : "border-destructive/40 cursor-not-allowed opacity-70"
                       : isSolved
                       ? "border-success/70 shadow-[0_0_30px_oklch(0.78_0.2_155/30%)] hover:scale-[1.02]"
                       : "border-border hover:scale-[1.03] hover:border-primary/60 hover:shadow-neon-cyan"
@@ -277,10 +287,15 @@ function Index() {
                     {isLocked && (
                       <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px]">
                         <div className="text-center">
-                          <div className="text-5xl mb-2">🔒</div>
+                          <div className="text-5xl mb-2 lock-icon">🔒</div>
                           <div className="text-xs font-display tracking-wider text-destructive">
                             נעול ל־{turnsLeft} {turnsLeft === 1 ? "תור" : "תורות"}
                           </div>
+                          {keys > 0 && (
+                            <div className="mt-2 text-[10px] font-display tracking-[0.2em] text-[oklch(0.78_0.18_70)] animate-pulse">
+                              גררו לכאן 🗝️ כדי לפתוח
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
