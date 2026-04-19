@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { gameActions, useGame } from "@/lib/game-store";
 import type { Room } from "@/lib/game-data";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { sfx } from "@/lib/sound";
 
 const accentMap: Record<Room["accent"], { glow: string; text: string; bar: string }> = {
@@ -45,6 +45,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
       setOpenCard(null);
       setViewed(new Set());
       setClosingIn(0);
+      setActivating(null);
       gameActions.startRoom(room.id);
     }
   }, [open, room]);
@@ -73,22 +74,25 @@ export function RoomDialog({ room, open, onClose }: Props) {
 
   function toggleCard(i: number) {
     const wasNew = !viewed.has(i);
+
     if (wasNew) {
       sfx.hologram();
+      setViewed((prev) => {
+        if (prev.has(i)) return prev;
+        const next = new Set(prev);
+        next.add(i);
+        return next;
+      });
       setActivating(i);
       window.setTimeout(() => {
-        setViewed((prev) => {
-          const next = new Set(prev);
-          next.add(i);
-          return next;
-        });
         setOpenCard(i);
         setActivating(null);
       }, 650);
-    } else {
-      sfx.click();
-      setOpenCard((cur) => (cur === i ? null : i));
+      return;
     }
+
+    sfx.click();
+    setOpenCard((cur) => (cur === i ? null : i));
   }
 
   function pick(i: number) {
@@ -117,6 +121,10 @@ export function RoomDialog({ room, open, onClose }: Props) {
         className="max-w-3xl p-0 overflow-hidden border-border bg-card/95 backdrop-blur-xl max-h-[92vh] overflow-y-auto"
         dir="rtl"
       >
+        <DialogTitle className="sr-only">{room.title}</DialogTitle>
+        <DialogDescription className="sr-only">
+          שאלה לימודית בחדר {room.number}. צפו בכל ההולוגרמות ואז בחרו תשובה.
+        </DialogDescription>
         {/* Hero image */}
         <div className="relative h-48 sm:h-60 overflow-hidden">
           <img
@@ -343,12 +351,13 @@ export function RoomDialog({ room, open, onClose }: Props) {
               const isSel = selected === i;
               const showAsCorrect = feedback && opt.correct && (feedback.correctPicked || isSel);
               const showAsWrong = feedback && isSel && !opt.correct;
-              const disabled = !allViewed || !!feedback || isSolved;
+              const disabled = !!feedback || isSolved;
               return (
                 <button
                   key={i}
                   onClick={() => pick(i)}
                   disabled={disabled}
+                  aria-disabled={!allViewed || disabled}
                   className={`w-full text-right px-5 py-4 rounded-xl border transition-all duration-300
                     ${
                       showAsCorrect
@@ -356,7 +365,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
                         : showAsWrong
                         ? "border-destructive bg-destructive/15 text-destructive"
                         : !allViewed
-                        ? "border-border/50 bg-secondary/30 text-muted-foreground cursor-not-allowed opacity-60"
+                        ? "border-border/50 bg-secondary/30 text-muted-foreground opacity-75"
                         : "border-border bg-secondary/60 hover:border-primary hover:bg-secondary/80 hover:translate-x-[-4px]"
                     }
                     disabled:cursor-not-allowed`}
