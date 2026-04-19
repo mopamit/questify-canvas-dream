@@ -6,6 +6,7 @@ import { ScoreHud } from "@/components/ScoreHud";
 import { BootScreen } from "@/components/BootScreen";
 import { RoomDialog } from "@/components/RoomDialog";
 import { NameScanner } from "@/components/NameScanner";
+import { KeyAward } from "@/components/KeyAward";
 import { sfx } from "@/lib/sound";
 import corridorBg from "@/assets/corridor.jpg";
 import creatureImg from "@/assets/creature.png";
@@ -29,19 +30,30 @@ function Index() {
   const solvedCount = Object.values(solved).filter(Boolean).length;
   const allDone = solvedCount === rooms.length;
 
-  // Three-stage intro: scanner → boot → game
-  const [scannerOpen, setScannerOpen] = useState(true);
-  const [bootOpen, setBootOpen] = useState(false);
+  // Three-stage intro: boot (opening) → scanner → game.
+  // If the player already has a name (returning user), skip both.
+  const [bootOpen, setBootOpen] = useState(true);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
+  const [showKeyAward, setShowKeyAward] = useState(false);
 
-  // If returning user already has a name, skip scanner on first mount
+  // If returning user already has a name, skip the intro entirely.
   useEffect(() => {
-    if (playerName && scannerOpen && !bootOpen) {
-      setScannerOpen(false);
-      setBootOpen(true);
+    if (playerName && bootOpen && !scannerOpen) {
+      setBootOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerName]);
+
+  // Watch keys count — trigger animation when it goes up.
+  const [prevKeys, setPrevKeys] = useState(keys);
+  useEffect(() => {
+    if (keys > prevKeys) {
+      setShowKeyAward(true);
+      sfx.keyAward();
+    }
+    setPrevKeys(keys);
+  }, [keys, prevKeys]);
 
   // Victory sound when all rooms solved
   useEffect(() => {
@@ -50,7 +62,6 @@ function Index() {
 
   function tryOpenRoom(room: Room) {
     if (gameActions.isLocked(room.id)) {
-      // Offer to spend a key if available
       if (keys > 0) {
         const ok = window.confirm(
           `החדר נעול. להשתמש במפתח בונוס כדי לפתוח אותו עכשיו? (נותרו: ${keys})`,
@@ -72,8 +83,8 @@ function Index() {
     if (!window.confirm("לאפס את המשחק לגמרי? כל ההתקדמות תימחק.")) return;
     gameActions.reset();
     setActiveRoom(null);
-    setBootOpen(false);
-    setScannerOpen(true);
+    setScannerOpen(false);
+    setBootOpen(true);
   }
 
   return (
@@ -84,15 +95,23 @@ function Index() {
         totalSeconds={1800}
       />
 
+      <BootScreen
+        open={bootOpen}
+        onClose={() => {
+          setBootOpen(false);
+          // Only ask for the name if we don't have one yet
+          if (!playerName) setScannerOpen(true);
+        }}
+      />
+
       <NameScanner
         open={scannerOpen}
         onComplete={() => {
           setScannerOpen(false);
-          setBootOpen(true);
         }}
       />
 
-      <BootScreen open={bootOpen} onClose={() => setBootOpen(false)} />
+      <KeyAward show={showKeyAward} onDone={() => setShowKeyAward(false)} />
 
       <RoomDialog
         room={activeRoom}
