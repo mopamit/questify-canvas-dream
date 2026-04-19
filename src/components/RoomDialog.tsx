@@ -190,6 +190,16 @@ export function RoomDialog({ room, open, onClose }: Props) {
                     {!isOpen ? (
                       // Closed state — contained hologram preview
                       <div className="relative p-3 h-44 flex flex-col items-center justify-between overflow-hidden">
+                        {activating === i && (
+                          <div className="absolute inset-0 z-30 pointer-events-none">
+                            <div className="absolute inset-0 bg-primary/30 animate-[fade-out_0.65s_ease-out_forwards]" />
+                            <div
+                              className="absolute left-0 right-0 h-1/2 bg-gradient-to-b from-transparent via-primary/80 to-transparent"
+                              style={{ animation: "scanBeam 0.65s linear forwards" }}
+                            />
+                            <div className="absolute inset-0 border-2 border-primary animate-pulse" />
+                          </div>
+                        )}
                         <div className="absolute top-2 left-2 text-[9px] font-mono tracking-wider z-10"
                           style={{ color: wasViewed ? "oklch(0.78 0.2 155 / 80%)" : "oklch(0.82 0.2 195 / 70%)" }}
                         >
