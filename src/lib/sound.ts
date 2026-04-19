@@ -85,4 +85,14 @@ export const sfx = {
       tone({ freq: f, duration: 0.22, type: "triangle", gain: 0.14, delay: i * 0.12 }),
     );
   },
+  // Dramatic key-award fanfare: shimmering rise + sparkle bells
+  keyAward() {
+    tone({ freq: 392, sweepTo: 1568, duration: 0.7, type: "sawtooth", gain: 0.1 });
+    tone({ freq: 1047, duration: 0.18, type: "triangle", gain: 0.16, delay: 0.15 });
+    tone({ freq: 1319, duration: 0.18, type: "triangle", gain: 0.16, delay: 0.3 });
+    tone({ freq: 1760, duration: 0.28, type: "triangle", gain: 0.18, delay: 0.45 });
+    tone({ freq: 2093, duration: 0.45, type: "sine", gain: 0.14, delay: 0.6 });
+    tone({ freq: 2637, duration: 0.06, type: "square", gain: 0.06, delay: 0.7 });
+    tone({ freq: 3136, duration: 0.06, type: "square", gain: 0.05, delay: 0.85 });
+  },
 };
