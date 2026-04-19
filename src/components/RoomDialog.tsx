@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { gameActions, useGame } from "@/lib/game-store";
 import type { Room } from "@/lib/game-data";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { sfx } from "@/lib/sound";
 
 const accentMap: Record<Room["accent"], { glow: string; text: string; bar: string }> = {
   cyan:    { glow: "shadow-neon-cyan",    text: "text-glow-cyan",    bar: "bg-primary" },
