@@ -186,21 +186,24 @@ export function RoomDialog({ room, open, onClose }: Props) {
                     }`}
                   >
                     {!isOpen ? (
-                      // Hologram closed state
-                      <div className="relative p-4 h-32 flex flex-col items-center justify-center overflow-hidden">
+                      // Hologram closed state — animal hologram preview
+                      <div className="relative p-3 h-44 flex flex-col items-center justify-end overflow-hidden">
                         {/* Holographic disc */}
-                        <div className="absolute inset-x-0 bottom-2 h-6 bg-[radial-gradient(ellipse_at_center,oklch(0.82_0.2_195/40%),transparent_70%)]" />
-                        <div className="relative">
-                          {/* Animated holo glyph */}
-                          <div className="w-12 h-12 rounded-full border-2 border-primary/60 flex items-center justify-center bg-primary/10 animate-pulse-glow">
-                            <span className="font-display font-black text-lg text-primary text-glow-cyan">
-                              0{i + 1}
-                            </span>
-                          </div>
-                          {/* Scan rings */}
-                          <div className="absolute inset-0 rounded-full border border-primary/40 animate-ping" />
+                        <div className="absolute inset-x-4 bottom-10 h-3 rounded-[50%] bg-[radial-gradient(ellipse_at_center,oklch(0.82_0.2_195/60%),transparent_70%)] blur-[1px]" />
+                        {/* Hologram image */}
+                        <div className="relative flex-1 w-full flex items-center justify-center">
+                          <img
+                            src={fact.image}
+                            alt={fact.name}
+                            loading="lazy"
+                            width={512}
+                            height={512}
+                            className="max-h-full max-w-full object-contain drop-shadow-[0_0_18px_oklch(0.82_0.2_195/60%)] opacity-90 mix-blend-screen animate-float"
+                          />
+                          {/* Scan-line overlay */}
+                          <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent_0,transparent_3px,oklch(0.82_0.2_195/12%)_3px,oklch(0.82_0.2_195/12%)_4px)]" />
                         </div>
-                        <div className="mt-3 text-xs font-display font-semibold text-primary/90 tracking-wider text-center">
+                        <div className="relative mt-1 text-xs font-display font-semibold text-primary/95 tracking-wider text-center">
                           {fact.name}
                         </div>
                         <div className="absolute top-2 left-2 text-[9px] font-mono text-primary/60 tracking-wider">
@@ -208,22 +211,37 @@ export function RoomDialog({ room, open, onClose }: Props) {
                         </div>
                       </div>
                     ) : (
-                      // Open state
+                      // Open state — full hologram + info
                       <div className="p-5 animate-[fade-in_0.3s_ease-out]">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-1">
-                              HOLO_{i + 1} · DECRYPTED
-                            </div>
-                            <h4 className="font-display font-bold text-lg text-primary text-glow-cyan">
-                              {fact.name}
-                            </h4>
+                        <div className="flex items-start gap-4">
+                          <div className="relative shrink-0 w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-primary/5 border border-primary/30 overflow-hidden flex items-center justify-center">
+                            <img
+                              src={fact.image}
+                              alt={fact.name}
+                              loading="lazy"
+                              width={512}
+                              height={512}
+                              className="w-full h-full object-contain drop-shadow-[0_0_20px_oklch(0.82_0.2_195/70%)] mix-blend-screen"
+                            />
+                            <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent_0,transparent_3px,oklch(0.82_0.2_195/15%)_3px,oklch(0.82_0.2_195/15%)_4px)]" />
                           </div>
-                          <span className="text-xs text-muted-foreground">[סגרו ✕]</span>
+                          <div className="flex-1 text-right">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <div className="text-[10px] font-mono text-primary/70 tracking-widest mb-1">
+                                  HOLO_{i + 1} · DECRYPTED
+                                </div>
+                                <h4 className="font-display font-bold text-lg text-primary text-glow-cyan">
+                                  {fact.name}
+                                </h4>
+                              </div>
+                              <span className="text-xs text-muted-foreground">[סגרו ✕]</span>
+                            </div>
+                            <p className="text-sm text-foreground/90 leading-relaxed">
+                              {fact.fact}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-foreground/90 leading-relaxed text-right">
-                          {fact.fact}
-                        </p>
                       </div>
                     )}
                   </button>
