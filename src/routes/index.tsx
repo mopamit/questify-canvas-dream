@@ -5,6 +5,7 @@ import { useGame, gameActions } from "@/lib/game-store";
 import { ScoreHud } from "@/components/ScoreHud";
 import { BootScreen } from "@/components/BootScreen";
 import { RoomDialog } from "@/components/RoomDialog";
+import { sfx } from "@/lib/sound";
 import corridorBg from "@/assets/corridor.jpg";
 import creatureImg from "@/assets/creature.png";
 
@@ -32,10 +33,17 @@ function Index() {
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
 
   // Re-render when turn counter changes (room locks countdown)
-  useEffect(() => {}, []);
+  // Victory sound when all rooms solved
+  useEffect(() => {
+    if (allDone) sfx.victory();
+  }, [allDone]);
 
   function tryOpenRoom(room: Room) {
-    if (gameActions.isLocked(room.id)) return;
+    if (gameActions.isLocked(room.id)) {
+      sfx.wrong();
+      return;
+    }
+    sfx.doorOpen();
     setActiveRoom(room);
   }
 
@@ -167,8 +175,9 @@ function Index() {
                         {isSolved ? "פתור" : isLocked ? `נעול · ${turnsLeft}` : "פתוח"}
                       </span>
                     </div>
-                    <div className="absolute top-3 right-3 font-display font-black text-3xl text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                      0{room.number}
+                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-background/85 backdrop-blur font-display font-black text-base text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                      <span className={`text-glow-cyan`}>{room.number}</span>
+                      <span className="text-foreground/60"> / 7</span>
                     </div>
 
                     {/* Lock overlay */}

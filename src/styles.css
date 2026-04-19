@@ -206,3 +206,9 @@
   50% { transform: translateY(-12px); }
 }
 .animate-float { animation: float 4s ease-in-out infinite; }
+
+@keyframes scanBeam {
+  0%   { top: -50%; opacity: 0; }
+  20%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}

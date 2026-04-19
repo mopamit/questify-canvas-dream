@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { gameActions, useGame } from "@/lib/game-store";
 import type { Room } from "@/lib/game-data";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { sfx } from "@/lib/sound";
 
 const accentMap: Record<Room["accent"], { glow: string; text: string; bar: string }> = {
   cyan:    { glow: "shadow-neon-cyan",    text: "text-glow-cyan",    bar: "bg-primary" },
@@ -34,6 +35,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [viewed, setViewed] = useState<Set<number>>(new Set());
   const [closingIn, setClosingIn] = useState<number>(0);
+  const [activating, setActivating] = useState<number | null>(null);
 
   // Reset state whenever a new room opens
   useEffect(() => {
@@ -70,22 +72,38 @@ export function RoomDialog({ room, open, onClose }: Props) {
   const allViewed = viewed.size === room.facts.length;
 
   function toggleCard(i: number) {
-    setViewed((prev) => {
-      if (prev.has(i)) return prev;
-      const next = new Set(prev);
-      next.add(i);
-      return next;
-    });
-    setOpenCard((cur) => (cur === i ? null : i));
+    const wasNew = !viewed.has(i);
+    if (wasNew) {
+      sfx.hologram();
+      setActivating(i);
+      window.setTimeout(() => {
+        setViewed((prev) => {
+          const next = new Set(prev);
+          next.add(i);
+          return next;
+        });
+        setOpenCard(i);
+        setActivating(null);
+      }, 650);
+    } else {
+      sfx.click();
+      setOpenCard((cur) => (cur === i ? null : i));
+    }
   }
 
   function pick(i: number) {
     if (!room) return;
-    if (!allViewed) return;
+    if (!allViewed) {
+      sfx.wrong();
+      return;
+    }
     const opt = room.options[i];
     if (feedback || isSolved) return;
+    sfx.click();
     setSelected(i);
     const result = gameActions.answer(room.id, opt.correct);
+    if (opt.correct) sfx.correct();
+    else sfx.wrong();
     setFeedback({
       correctPicked: opt.correct,
       delta: result.delta,
@@ -114,8 +132,8 @@ export function RoomDialog({ room, open, onClose }: Props) {
           <div className="absolute bottom-4 right-6 left-6 text-right">
             <div className="inline-flex items-center gap-2 text-[11px] font-display tracking-[0.3em] text-foreground/85 mb-2 px-2.5 py-0.5 rounded-full bg-background/70 backdrop-blur">
               <span>חדר</span>
-              <span className={`font-bold ${a.text}`}>0{room.number}</span>
-              <span>/ 07</span>
+              <span className={`font-bold ${a.text}`}>{room.number}</span>
+              <span>/ 7</span>
             </div>
             <h1 className={`text-2xl sm:text-4xl font-display font-black ${a.text} drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]`}>
               {room.title}
@@ -172,6 +190,16 @@ export function RoomDialog({ room, open, onClose }: Props) {
                     {!isOpen ? (
                       // Closed state — contained hologram preview
                       <div className="relative p-3 h-44 flex flex-col items-center justify-between overflow-hidden">
+                        {activating === i && (
+                          <div className="absolute inset-0 z-30 pointer-events-none">
+                            <div className="absolute inset-0 bg-primary/30 animate-[fade-out_0.65s_ease-out_forwards]" />
+                            <div
+                              className="absolute left-0 right-0 h-1/2 bg-gradient-to-b from-transparent via-primary/80 to-transparent"
+                              style={{ animation: "scanBeam 0.65s linear forwards" }}
+                            />
+                            <div className="absolute inset-0 border-2 border-primary animate-pulse" />
+                          </div>
+                        )}
                         <div className="absolute top-2 left-2 text-[9px] font-mono tracking-wider z-10"
                           style={{ color: wasViewed ? "oklch(0.78 0.2 155 / 80%)" : "oklch(0.82 0.2 195 / 70%)" }}
                         >
