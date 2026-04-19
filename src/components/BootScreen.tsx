@@ -26,17 +26,17 @@ const instructions = [
   "🏆 כשתפתרו את כל 7 החדרים — תופעל סריקה מלאה והיצור יינצל!",
 ];
 
-type Tab = "briefing" | "instructions";
+type Tab = "opening" | "instructions";
 
 export function BootScreen({ open, onClose }: Props) {
   const [step, setStep] = useState(0);
-  const [tab, setTab] = useState<Tab>("briefing");
+  const [tab, setTab] = useState<Tab>("opening");
 
   // Reset typewriter sequence each time the screen opens
   useEffect(() => {
     if (open) {
       setStep(0);
-      setTab("briefing");
+      setTab("opening");
     }
   }, [open]);
 
