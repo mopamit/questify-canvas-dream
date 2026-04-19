@@ -5,6 +5,7 @@ import { useGame, gameActions } from "@/lib/game-store";
 import { ScoreHud } from "@/components/ScoreHud";
 import { BootScreen } from "@/components/BootScreen";
 import { RoomDialog } from "@/components/RoomDialog";
+import { sfx } from "@/lib/sound";
 import corridorBg from "@/assets/corridor.jpg";
 import creatureImg from "@/assets/creature.png";
 
