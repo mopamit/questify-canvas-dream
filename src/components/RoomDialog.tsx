@@ -101,10 +101,24 @@ export function RoomDialog({ room, open, onClose }: Props) {
       sfx.wrong();
       return;
     }
+
     const opt = room.options[i];
-    if (feedback || isSolved) return;
+    if (feedback) return;
+
     sfx.click();
     setSelected(i);
+
+    if (isSolved) {
+      setFeedback({
+        correctPicked: opt.correct,
+        delta: 0,
+        wrongReason: opt.correct ? undefined : opt.wrongReason,
+      });
+      if (opt.correct) sfx.correct();
+      else sfx.wrong();
+      return;
+    }
+
     const result = gameActions.answer(room.id, opt.correct);
     if (opt.correct) sfx.correct();
     else sfx.wrong();
@@ -351,7 +365,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
               const isSel = selected === i;
               const showAsCorrect = feedback && opt.correct && (feedback.correctPicked || isSel);
               const showAsWrong = feedback && isSel && !opt.correct;
-              const disabled = !!feedback || isSolved;
+              const disabled = !!feedback;
               return (
                 <button
                   key={i}
@@ -366,7 +380,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
                         ? "border-destructive bg-destructive/15 text-destructive"
                         : !allViewed
                         ? "border-border/50 bg-secondary/30 text-muted-foreground opacity-75"
-                        : "border-border bg-secondary/60 hover:border-primary hover:bg-secondary/80 hover:translate-x-[-4px]"
+                        : "border-border bg-secondary/60 hover:border-primary hover:bg-secondary/80 hover:translate-x-[-4px] cursor-pointer"
                     }
                     disabled:cursor-not-allowed`}
                 >

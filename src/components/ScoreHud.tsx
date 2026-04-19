@@ -79,9 +79,9 @@ export function ScoreHud({ onOpenBriefing, totalSeconds = 600 }: Props) {
                 onOpenBriefing();
               }}
               className="px-3 py-1.5 rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary font-display tracking-wider transition-colors"
-              title="פתח שוב את הודעת הפתיחה"
+              title="פתחו שוב את הודעת הפתיחה"
             >
-              ⓘ בריפינג
+              ⓘ פתיחה
             </button>
           )}
           <div className="flex items-center gap-2">
