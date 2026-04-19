@@ -35,6 +35,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [viewed, setViewed] = useState<Set<number>>(new Set());
   const [closingIn, setClosingIn] = useState<number>(0);
+  const [activating, setActivating] = useState<number | null>(null);
 
   // Reset state whenever a new room opens
   useEffect(() => {
@@ -72,15 +73,22 @@ export function RoomDialog({ room, open, onClose }: Props) {
 
   function toggleCard(i: number) {
     const wasNew = !viewed.has(i);
-    setViewed((prev) => {
-      if (prev.has(i)) return prev;
-      const next = new Set(prev);
-      next.add(i);
-      return next;
-    });
-    setOpenCard((cur) => (cur === i ? null : i));
-    if (wasNew) sfx.hologram();
-    else sfx.click();
+    if (wasNew) {
+      sfx.hologram();
+      setActivating(i);
+      window.setTimeout(() => {
+        setViewed((prev) => {
+          const next = new Set(prev);
+          next.add(i);
+          return next;
+        });
+        setOpenCard(i);
+        setActivating(null);
+      }, 650);
+    } else {
+      sfx.click();
+      setOpenCard((cur) => (cur === i ? null : i));
+    }
   }
 
   function pick(i: number) {
