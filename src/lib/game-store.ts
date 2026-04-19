@@ -8,6 +8,12 @@ type GameState = {
   turn: number;
   /** roomId -> turn number until which the room stays locked (inclusive: locked while turn < lockedUntil) */
   lockedUntil: Record<string, number>;
+  /** Number of consecutive correct answers (resets on wrong). */
+  streak: number;
+  /** Bonus keys earned (each consumes to unlock a locked room). */
+  keys: number;
+  /** Player's name (from intro scanner). */
+  playerName: string;
 };
 
 const STORAGE_KEY = "escape-game-state";
@@ -18,6 +24,9 @@ const initial: GameState = {
   startedAt: {},
   turn: 0,
   lockedUntil: {},
+  streak: 0,
+  keys: 0,
+  playerName: "",
 };
 
 let state: GameState = initial;
@@ -69,57 +78,77 @@ export function useGame() {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
+export const CORRECT_POINTS = 50;
+export const WRONG_PENALTY = -20;
+export const STREAK_FOR_KEY = 2;
+export const LOCK_TURNS = 2;
+
 export const gameActions = {
+  setPlayerName(name: string) {
+    state = { ...state, playerName: name };
+    persist();
+  },
   startRoom(roomId: string) {
     if (!state.startedAt[roomId]) {
       state = { ...state, startedAt: { ...state.startedAt, [roomId]: Date.now() } };
       persist();
     }
   },
-  /** Returns delta points and (if wrong) the turn number when the room reopens. */
-  answer(roomId: string, correct: boolean): { delta: number; reopenAtTurn?: number } {
+  /** Returns delta points, key earned flag, and (if wrong) the turn number when the room reopens. */
+  answer(
+    roomId: string,
+    correct: boolean,
+  ): { delta: number; reopenAtTurn?: number; keyEarned?: boolean } {
     if (state.solved[roomId]) return { delta: 0 };
-    let delta = 0;
     if (correct) {
-      const started = state.startedAt[roomId] ?? Date.now();
-      const seconds = (Date.now() - started) / 1000;
-      delta = Math.max(20, Math.round(100 - seconds * 1.3));
+      const delta = CORRECT_POINTS;
+      const newStreak = state.streak + 1;
+      const earnsKey = newStreak >= STREAK_FOR_KEY;
       state = {
         ...state,
         score: state.score + delta,
         solved: { ...state.solved, [roomId]: true },
+        streak: earnsKey ? 0 : newStreak,
+        keys: earnsKey ? state.keys + 1 : state.keys,
       };
       persist();
-      return { delta };
+      return { delta, keyEarned: earnsKey };
     } else {
-      delta = -15;
+      const delta = WRONG_PENALTY;
       const newTurn = state.turn + 1;
-      // Locked for 2 turns -> reopens once turn reaches newTurn + 2
-      const reopenAtTurn = newTurn + 2;
+      const reopenAtTurn = newTurn + LOCK_TURNS;
       state = {
         ...state,
         score: state.score + delta,
         turn: newTurn,
+        streak: 0,
         lockedUntil: { ...state.lockedUntil, [roomId]: reopenAtTurn },
-        // Reset start time so timer is fresh next attempt
         startedAt: { ...state.startedAt, [roomId]: 0 },
       };
       persist();
       return { delta, reopenAtTurn };
     }
   },
-  /** True if this room is currently locked (after a wrong answer). */
+  /** Spend a bonus key to immediately unlock a locked room. Returns true if used. */
+  useKey(roomId: string): boolean {
+    if (state.keys <= 0) return false;
+    if (!this.isLocked(roomId)) return false;
+    const newLocked = { ...state.lockedUntil };
+    delete newLocked[roomId];
+    state = { ...state, keys: state.keys - 1, lockedUntil: newLocked };
+    persist();
+    return true;
+  },
   isLocked(roomId: string): boolean {
     const until = state.lockedUntil[roomId] ?? 0;
     return state.turn < until;
   },
-  /** How many turns until this room reopens (0 = open). */
   turnsUntilUnlock(roomId: string): number {
     const until = state.lockedUntil[roomId] ?? 0;
     return Math.max(0, until - state.turn);
   },
   reset() {
-    state = initial;
+    state = { ...initial };
     persist();
   },
 };
