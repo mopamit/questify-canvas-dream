@@ -62,21 +62,22 @@ function Index() {
 
   function tryOpenRoom(room: Room) {
     if (gameActions.isLocked(room.id)) {
-      if (keys > 0) {
-        const ok = window.confirm(
-          `החדר נעול. להשתמש במפתח בונוס כדי לפתוח אותו עכשיו? (נותרו: ${keys})`,
-        );
-        if (ok && gameActions.useKey(room.id)) {
-          sfx.doorOpen();
-          setActiveRoom(room);
-          return;
-        }
-      }
       sfx.wrong();
       return;
     }
     sfx.doorOpen();
     setActiveRoom(room);
+  }
+
+  function handleKeyDrop(e: React.DragEvent, room: Room) {
+    e.preventDefault();
+    document.body.classList.remove("dragging-key");
+    if (e.dataTransfer.getData("text/plain") !== "bonus-key") return;
+    if (!gameActions.isLocked(room.id)) return;
+    if (gameActions.useKey(room.id)) {
+      sfx.doorOpen();
+      setActiveRoom(room);
+    }
   }
 
   function handleReset() {
