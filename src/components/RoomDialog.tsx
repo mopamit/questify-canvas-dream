@@ -71,6 +71,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
   const allViewed = viewed.size === room.facts.length;
 
   function toggleCard(i: number) {
+    const wasNew = !viewed.has(i);
     setViewed((prev) => {
       if (prev.has(i)) return prev;
       const next = new Set(prev);
@@ -78,15 +79,23 @@ export function RoomDialog({ room, open, onClose }: Props) {
       return next;
     });
     setOpenCard((cur) => (cur === i ? null : i));
+    if (wasNew) sfx.hologram();
+    else sfx.click();
   }
 
   function pick(i: number) {
     if (!room) return;
-    if (!allViewed) return;
+    if (!allViewed) {
+      sfx.wrong();
+      return;
+    }
     const opt = room.options[i];
     if (feedback || isSolved) return;
+    sfx.click();
     setSelected(i);
     const result = gameActions.answer(room.id, opt.correct);
+    if (opt.correct) sfx.correct();
+    else sfx.wrong();
     setFeedback({
       correctPicked: opt.correct,
       delta: result.delta,
@@ -115,8 +124,8 @@ export function RoomDialog({ room, open, onClose }: Props) {
           <div className="absolute bottom-4 right-6 left-6 text-right">
             <div className="inline-flex items-center gap-2 text-[11px] font-display tracking-[0.3em] text-foreground/85 mb-2 px-2.5 py-0.5 rounded-full bg-background/70 backdrop-blur">
               <span>חדר</span>
-              <span className={`font-bold ${a.text}`}>0{room.number}</span>
-              <span>/ 07</span>
+              <span className={`font-bold ${a.text}`}>{room.number}</span>
+              <span>/ 7</span>
             </div>
             <h1 className={`text-2xl sm:text-4xl font-display font-black ${a.text} drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]`}>
               {room.title}
