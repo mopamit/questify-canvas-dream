@@ -32,11 +32,15 @@ export const Route = createRootRoute({
       { title: "חדר בריחה: הצילו את היצור הסודי" },
       { name: "description", content: "מעבדה X23 בסכנה — פתרו 7 חידות מדעיות והצילו את היצור הנדיר." },
       { name: "author", content: "Lab X23" },
-      { property: "og:title", content: "חדר בריחה: מעבדה X23" },
-      { property: "og:description", content: "פתרו 7 חידות מדעיות והצילו את היצור הסודי." },
+      { property: "og:title", content: "חדר בריחה: הצילו את היצור הסודי" },
+      { property: "og:description", content: "מעבדה X23 בסכנה — פתרו 7 חידות מדעיות והצילו את היצור הנדיר." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "חדר בריחה: הצילו את היצור הסודי" },
+      { name: "twitter:description", content: "מעבדה X23 בסכנה — פתרו 7 חידות מדעיות והצילו את היצור הנדיר." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5b781f1f-e7f8-4c63-ad68-3450000a9d13/id-preview-c842bfed--f8693943-889f-4428-8327-d1e03297ea87.lovable.app-1776607521766.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5b781f1f-e7f8-4c63-ad68-3450000a9d13/id-preview-c842bfed--f8693943-889f-4428-8327-d1e03297ea87.lovable.app-1776607521766.png" },
     ],
     links: [
       {
