@@ -18,6 +18,7 @@ type Feedback = {
   correctPicked: boolean;
   delta: number;
   wrongReason?: string;
+  keyEarned?: boolean;
   /** auto-close timer when wrong */
   autoCloseAt?: number;
 };
@@ -126,6 +127,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
       correctPicked: opt.correct,
       delta: result.delta,
       wrongReason: opt.correct ? undefined : opt.wrongReason,
+      keyEarned: result.keyEarned,
     });
   }
 
@@ -409,6 +411,11 @@ export function RoomDialog({ room, open, onClose }: Props) {
                   <p className="text-sm text-foreground/90 leading-relaxed">
                     {room.explanation}
                   </p>
+                  {feedback.keyEarned && (
+                    <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[oklch(0.78_0.18_70)]/60 bg-[oklch(0.78_0.18_70)]/15 text-[oklch(0.78_0.18_70)] font-display text-sm animate-pulse-glow">
+                      🗝️ רצף של 2! קיבלתם מפתח בונוס לפתיחת חדר נעול
+                    </div>
+                  )}
                 </>
               ) : (
                 <>

@@ -1,17 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useGame } from "@/lib/game-store";
+import { gameActions, useGame } from "@/lib/game-store";
 import { rooms } from "@/lib/game-data";
 import { sfx } from "@/lib/sound";
 
 type Props = {
   onOpenBriefing?: () => void;
+  onReset?: () => void;
   /** Total mission seconds (default 10 min) */
   totalSeconds?: number;
 };
 
-export function ScoreHud({ onOpenBriefing, totalSeconds = 600 }: Props) {
-  const { score, solved } = useGame();
+export function ScoreHud({ onOpenBriefing, onReset, totalSeconds = 600 }: Props) {
+  const { score, solved, keys, streak } = useGame();
   const solvedCount = Object.values(solved).filter(Boolean).length;
   const allDone = solvedCount === rooms.length;
 
@@ -82,6 +83,32 @@ export function ScoreHud({ onOpenBriefing, totalSeconds = 600 }: Props) {
               title="פתחו שוב את הודעת הפתיחה"
             >
               ⓘ פתיחה
+            </button>
+          )}
+
+          {/* Bonus keys */}
+          <div
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-display tracking-wider ${
+              keys > 0
+                ? "border-[oklch(0.78_0.18_70)]/60 bg-[oklch(0.78_0.18_70)]/15 text-[oklch(0.78_0.18_70)] animate-pulse-glow"
+                : "border-border bg-secondary/40 text-muted-foreground"
+            }`}
+            title={`מפתחות בונוס · רצף נוכחי: ${streak}/2`}
+          >
+            <span>🗝️</span>
+            <span className="font-bold">{keys}</span>
+          </div>
+
+          {onReset && (
+            <button
+              onClick={() => {
+                sfx.click();
+                onReset();
+              }}
+              className="px-2.5 py-1.5 rounded-full border border-destructive/40 bg-destructive/10 hover:bg-destructive/20 text-destructive font-display tracking-wider transition-colors text-xs"
+              title="אפסו את המשחק"
+            >
+              ⟲ איפוס
             </button>
           )}
           <div className="flex items-center gap-2">

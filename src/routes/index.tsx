@@ -5,6 +5,7 @@ import { useGame, gameActions } from "@/lib/game-store";
 import { ScoreHud } from "@/components/ScoreHud";
 import { BootScreen } from "@/components/BootScreen";
 import { RoomDialog } from "@/components/RoomDialog";
+import { NameScanner } from "@/components/NameScanner";
 import { sfx } from "@/lib/sound";
 import corridorBg from "@/assets/corridor.jpg";
 import creatureImg from "@/assets/creature.png";
@@ -24,15 +25,24 @@ const accentDot: Record<string, string> = {
 };
 
 function Index() {
-  const { solved, score } = useGame();
+  const { solved, score, playerName, keys } = useGame();
   const solvedCount = Object.values(solved).filter(Boolean).length;
   const allDone = solvedCount === rooms.length;
 
-  // Boot screen always opens at game start (refresh = new session)
-  const [bootOpen, setBootOpen] = useState(true);
+  // Three-stage intro: scanner → boot → game
+  const [scannerOpen, setScannerOpen] = useState(true);
+  const [bootOpen, setBootOpen] = useState(false);
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
 
-  // Re-render when turn counter changes (room locks countdown)
+  // If returning user already has a name, skip scanner on first mount
+  useEffect(() => {
+    if (playerName && scannerOpen && !bootOpen) {
+      setScannerOpen(false);
+      setBootOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerName]);
+
   // Victory sound when all rooms solved
   useEffect(() => {
     if (allDone) sfx.victory();
@@ -40,6 +50,17 @@ function Index() {
 
   function tryOpenRoom(room: Room) {
     if (gameActions.isLocked(room.id)) {
+      // Offer to spend a key if available
+      if (keys > 0) {
+        const ok = window.confirm(
+          `החדר נעול. להשתמש במפתח בונוס כדי לפתוח אותו עכשיו? (נותרו: ${keys})`,
+        );
+        if (ok && gameActions.useKey(room.id)) {
+          sfx.doorOpen();
+          setActiveRoom(room);
+          return;
+        }
+      }
       sfx.wrong();
       return;
     }
@@ -47,9 +68,29 @@ function Index() {
     setActiveRoom(room);
   }
 
+  function handleReset() {
+    if (!window.confirm("לאפס את המשחק לגמרי? כל ההתקדמות תימחק.")) return;
+    gameActions.reset();
+    setActiveRoom(null);
+    setBootOpen(false);
+    setScannerOpen(true);
+  }
+
   return (
     <>
-      <ScoreHud onOpenBriefing={() => setBootOpen(true)} totalSeconds={1800} />
+      <ScoreHud
+        onOpenBriefing={() => setBootOpen(true)}
+        onReset={handleReset}
+        totalSeconds={1800}
+      />
+
+      <NameScanner
+        open={scannerOpen}
+        onComplete={() => {
+          setScannerOpen(false);
+          setBootOpen(true);
+        }}
+      />
 
       <BootScreen open={bootOpen} onClose={() => setBootOpen(false)} />
 
@@ -86,6 +127,26 @@ function Index() {
               פתחתם את כל 7 המעבדות, שחזרתם את כל צרכי הקיום, וסריקה ביו-מטרית
               מלאה אישרה: היצור יציב ובטוח.
             </p>
+
+            {/* Digital name display */}
+            {playerName && (
+              <div className="mx-auto max-w-md mb-6 rounded-xl border-2 border-success/50 bg-black/70 px-4 py-3 shadow-[0_0_30px_oklch(0.78_0.2_155/40%)]">
+                <div className="text-[10px] font-mono tracking-[0.3em] text-success/70 mb-1 text-center">
+                  AGENT · CONFIRMED
+                </div>
+                <div
+                  dir="ltr"
+                  className="text-center text-2xl sm:text-4xl font-display font-black tracking-[0.15em] text-success"
+                  style={{
+                    textShadow:
+                      "0 0 18px oklch(0.78 0.2 155 / 80%), 0 0 36px oklch(0.78 0.2 155 / 40%)",
+                  }}
+                >
+                  {playerName}
+                </div>
+              </div>
+            )}
+
             <div className="relative inline-block mb-6">
               <img
                 src={creatureImg}
@@ -94,9 +155,17 @@ function Index() {
                 width={1024}
                 height={1024}
               />
-              {/* Scan ring */}
               <div className="absolute inset-0 rounded-full border-2 border-success/60 animate-ping" />
             </div>
+
+            <h2 className="text-xl sm:text-2xl font-display font-bold text-success mb-2">
+              כל הכבוד{playerName ? `, ${playerName}` : ""}! 🎉
+            </h2>
+            <p className="text-foreground/90 max-w-lg mx-auto mb-4">
+              עזרתם לפתור את התעלומה והצלתם את היצור שהיה לכוד במעבדה.
+              בזכותכם הוא חזר לחיות בבטחה.
+            </p>
+
             <p className="text-foreground/85 mb-1">
               ניקוד סופי:{" "}
               <span className="font-display font-black text-3xl text-accent text-glow-magenta align-middle">
@@ -104,7 +173,7 @@ function Index() {
               </span>
             </p>
             <button
-              onClick={() => gameActions.reset()}
+              onClick={handleReset}
               className="mt-4 px-6 py-3 rounded-xl border border-border bg-secondary hover:bg-secondary/70 font-display"
             >
               שחקו שוב
