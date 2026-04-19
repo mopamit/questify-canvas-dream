@@ -6,9 +6,32 @@ import roomLight from "@/assets/room-light.jpg";
 import roomSoil from "@/assets/room-soil.jpg";
 import roomDefense from "@/assets/room-defense.jpg";
 
+import holoMaluach from "@/assets/holo-maluach.png";
+import holoJerboa from "@/assets/holo-jerboa.png";
+import holoFox from "@/assets/holo-fox.png";
+import holoBacteria from "@/assets/holo-bacteria.png";
+import holoWaterplant from "@/assets/holo-waterplant.png";
+import holoEagle from "@/assets/holo-eagle.png";
+import holoWhale from "@/assets/holo-whale.png";
+import holoWorm from "@/assets/holo-worm.png";
+import holoHorse from "@/assets/holo-horse.png";
+import holoBlubber from "@/assets/holo-blubber.png";
+import holoTeeth from "@/assets/holo-teeth.png";
+import holoOwl from "@/assets/holo-owl.png";
+import holoOak from "@/assets/holo-oak.png";
+import holoAlgae from "@/assets/holo-algae.png";
+import holoCaveBacteria from "@/assets/holo-cave-bacteria.png";
+import holoSand from "@/assets/holo-sand.png";
+import holoSoil from "@/assets/holo-soil.png";
+import holoRock from "@/assets/holo-rock.png";
+import holoCamouflage from "@/assets/holo-camouflage.png";
+import holoNoise from "@/assets/holo-noise.png";
+import holoGazelle from "@/assets/holo-gazelle.png";
+
 export type AnimalFact = {
   name: string;
   fact: string;
+  image: string;
 };
 
 export type Option = {
@@ -62,14 +85,17 @@ export const rooms: Room[] = [
     facts: [
       {
         name: "צמח המלוח",
+        image: holoMaluach,
         fact: "צמח שיחי המצוי באזורים מלוחים ויבשים. סופג מים מליחים מהקרקע ומפריש את עודפי המלח דרך בלוטות מיוחדות בעלים — מה שמאפשר לו לשרוד שם שצמחים אחרים אינם יכולים.",
       },
       {
         name: "ירבוע",
+        image: holoJerboa,
         fact: "מכרסם מדברי קטן שחי בנגב ובסהרה. אינו שותה מים כלל — מפיק את הנוזלים מהמזון היבש (זרעים ועלים) ושומר עליהם דרך כליות יעילות במיוחד ושתן מרוכז ביותר.",
       },
       {
         name: "שועל מצוי",
+        image: holoFox,
         fact: "טורף בינוני שחי במגוון בתי גידול בארץ ובעולם. זקוק לשתייה סדירה ולכן נמצא בעיקר ליד מקורות מים — נחלים, שדות מושקים ויישובים.",
       },
     ],
@@ -102,14 +128,17 @@ export const rooms: Room[] = [
     facts: [
       {
         name: "חיידק מפרק חומר אורגני",
+        image: holoBacteria,
         fact: "מיקרואורגניזם שתפקידו לפרק שאריות של צמחים ובעלי חיים מתים ולהחזיר את המינרלים לקרקע. ללא חומר אורגני קיים — אין לו מקור אנרגיה והוא הראשון להיכחד.",
       },
       {
         name: "צמח מים",
+        image: holoWaterplant,
         fact: "צמח אוטוטרופי החי במים. מייצר את האנרגיה שלו עצמאית דרך פוטוסינתזה — אינו זקוק לחומר אורגני קיים אלא רק לאור, מים ופחמן דו-חמצני.",
       },
       {
         name: "עיט",
+        image: holoEagle,
         fact: "עוף דורס גדול הניזון מבעלי חיים אחרים (לעיתים גם נבלות). הוא תלוי בשרשרת המזון אבל לא ייפגע מיד מהיעלמות חומר אורגני מפורר.",
       },
     ],
@@ -142,14 +171,17 @@ export const rooms: Room[] = [
     facts: [
       {
         name: "לוויתן",
+        image: holoWhale,
         fact: "יונק ימי ענק שיכול לעצור נשימה לזמנים ארוכים (לוויתן הזרע — עד שעתיים בצלילה). אבל הוא חייב לעלות לפני המים כדי לנשום אוויר.",
       },
       {
         name: "תולעת מעי",
+        image: holoWorm,
         fact: "טפיל החי בתוך מערכת העיכול של בעלי חיים — סביבה כמעט נטולת חמצן. מסוגלת להפיק אנרגיה ללא חמצן (אנאירובית) ולחיות שם תקופות ארוכות מאוד.",
       },
       {
         name: "סוס",
+        image: holoHorse,
         fact: "יונק יבשתי גדול עם מערכת נשימה ולב חזקים, אבל תלוי לחלוטין באוויר עשיר בחמצן — חוסר חמצן פוגע בו תוך דקות בודדות.",
       },
     ],
@@ -182,14 +214,17 @@ export const rooms: Room[] = [
     facts: [
       {
         name: "שכבת שומן עבה",
+        image: holoBlubber,
         fact: "רקמה שומנית שמבודדת את הגוף משינויי טמפרטורה חיצוניים. יעילה במיוחד באזורים קרים — לוויתנים ופוקות עטופים בשכבת בלובר של עד 30 ס\"מ.",
       },
       {
         name: "שיניים חדות",
+        image: holoTeeth,
         fact: "התאמה תזונתית של טורפים — מסייעות בתפיסת טרף וקריעת בשר. אין להן שום קשר לוויסות חום הגוף.",
       },
       {
         name: "ראייה לילית",
+        image: holoOwl,
         fact: "התאמה לפעילות בחושך, נפוצה בטורפים ליליים. עוזרת בציד אבל לא מגנה מטמפרטורה קיצונית.",
       },
     ],
@@ -222,14 +257,17 @@ export const rooms: Room[] = [
     facts: [
       {
         name: "עץ אלון",
+        image: holoOak,
         fact: "עץ נשיר גדול ועמיד שחי מאות שנים. עליו מבצעים פוטוסינתזה ויוצרים סוכרים מאור השמש — בלי אור הוא לא יכול לייצר אנרגיה.",
       },
       {
         name: "אצה ירוקה",
+        image: holoAlgae,
         fact: "צמח מימי פשוט המכיל כלורופיל. מהווה בסיס של שרשראות מזון ימיות — מייצרת חמצן ואנרגיה דרך פוטוסינתזה.",
       },
       {
         name: "חיידק מערות",
+        image: holoCaveBacteria,
         fact: "מיקרואורגניזם שחי בחושך מוחלט עמוק במערות. במקום פוטוסינתזה — משתמש בכמוסינתזה: מפיק אנרגיה מתגובות כימיות עם מינרלים בסלע.",
       },
     ],
@@ -262,14 +300,17 @@ export const rooms: Room[] = [
     facts: [
       {
         name: "חול נייד",
+        image: holoSand,
         fact: "חול דק וזורם המצוי בדיונות מדבריות. הגרגירים לא נדבקים זה לזה ולכן מחילות בתוכו מתמוטטות מיידית — בעלי חיים שחיים שם נעים על פני השטח ולא מתחתיו.",
       },
       {
         name: "קרקע חולית-חרסיתית",
+        image: holoSoil,
         fact: "תערובת אופטימלית של חול וחרסית — מספיק רכה לחפירה אבל מספיק יציבה כדי שמחילות לא יקרסו. בית הגידול האידיאלי ליונקים חופרים.",
       },
       {
         name: "סלע מוצק",
+        image: holoRock,
         fact: "מסה מינרלית קשיחה. רק יצורים מיקרוסקופיים או כאלה עם כלים מיוחדים מאוד (כמו צדפת אבן) מצליחים לחיות בתוכו.",
       },
     ],
@@ -302,14 +343,17 @@ export const rooms: Room[] = [
     facts: [
       {
         name: "הסוואה",
+        image: holoCamouflage,
         fact: "התאמה של צבע, צורה ותבנית הגוף לסביבה — כך שהטורף פשוט לא מבחין בטרף. נפוצה בלטאות, חרקים, דגים וציפורים.",
       },
       {
         name: "רעש חזק",
+        image: holoNoise,
         fact: "אסטרטגיית הגנה שמתאימה נגד טורפים שמתבססים על שמיעה או נגד תוקפים שמתבהלים — אבל מול טורף חזותי היא חושפת את הטרף.",
       },
       {
         name: "ריצה מהירה",
+        image: holoGazelle,
         fact: "התאמה של הצבי ושל הגזלים — מאפשרת בריחה אחרי שזוהית. יעילה כשמשולבת עם זריזות תמרון, אבל פחות אפקטיבית מהסוואה כאסטרטגיה ראשונית.",
       },
     ],
