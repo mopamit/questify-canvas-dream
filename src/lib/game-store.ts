@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 type GameState = {
   score: number;
@@ -20,17 +20,22 @@ const initial: GameState = {
   lockedUntil: {},
 };
 
-let state: GameState = (() => {
-  if (typeof window === "undefined") return initial;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? { ...initial, ...JSON.parse(raw) } : initial;
-  } catch {
-    return initial;
-  }
-})();
+let state: GameState = initial;
+let hydrated = false;
 
 const listeners = new Set<() => void>();
+
+function hydrateFromStorage() {
+  if (hydrated || typeof window === "undefined") return;
+  hydrated = true;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    state = raw ? { ...initial, ...JSON.parse(raw) } : initial;
+  } catch {
+    state = initial;
+  }
+  listeners.forEach((l) => l());
+}
 
 function persist() {
   if (typeof window !== "undefined") {
@@ -57,6 +62,10 @@ function getServerSnapshot() {
 }
 
 export function useGame() {
+  useEffect(() => {
+    hydrateFromStorage();
+  }, []);
+
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 

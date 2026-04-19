@@ -64,8 +64,8 @@ export function BootScreen({ open, onClose }: Props) {
                 <div className="font-display text-[10px] sm:text-xs tracking-[0.3em] text-primary/80">
                   TERMINAL · X23
                 </div>
-                <div className="font-display text-[10px] text-primary/60">
-                  {new Date().toLocaleDateString("he-IL")}
+                <div className="font-display text-[10px] text-primary/60 tracking-[0.2em]">
+                  SECURE LINK
                 </div>
               </div>
 
