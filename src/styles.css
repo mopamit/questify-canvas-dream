@@ -1,6 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Heebo:wght@300;400;500;700&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -35,8 +36,6 @@
   --font-display: "Orbitron", sans-serif;
   --font-body: "Heebo", sans-serif;
 }
-
-@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Heebo:wght@300;400;500;700&display=swap");
 
 :root {
   --radius: 0.75rem;
