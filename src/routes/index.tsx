@@ -5,6 +5,7 @@ import { useGame, gameActions } from "@/lib/game-store";
 import { ScoreHud } from "@/components/ScoreHud";
 import { BootScreen } from "@/components/BootScreen";
 import { RoomDialog } from "@/components/RoomDialog";
+import { NameScanner } from "@/components/NameScanner";
 import { sfx } from "@/lib/sound";
 import corridorBg from "@/assets/corridor.jpg";
 import creatureImg from "@/assets/creature.png";
@@ -24,15 +25,24 @@ const accentDot: Record<string, string> = {
 };
 
 function Index() {
-  const { solved, score } = useGame();
+  const { solved, score, playerName, keys } = useGame();
   const solvedCount = Object.values(solved).filter(Boolean).length;
   const allDone = solvedCount === rooms.length;
 
-  // Boot screen always opens at game start (refresh = new session)
-  const [bootOpen, setBootOpen] = useState(true);
+  // Three-stage intro: scanner → boot → game
+  const [scannerOpen, setScannerOpen] = useState(true);
+  const [bootOpen, setBootOpen] = useState(false);
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
 
-  // Re-render when turn counter changes (room locks countdown)
+  // If returning user already has a name, skip scanner on first mount
+  useEffect(() => {
+    if (playerName && scannerOpen && !bootOpen) {
+      setScannerOpen(false);
+      setBootOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerName]);
+
   // Victory sound when all rooms solved
   useEffect(() => {
     if (allDone) sfx.victory();
@@ -40,11 +50,30 @@ function Index() {
 
   function tryOpenRoom(room: Room) {
     if (gameActions.isLocked(room.id)) {
+      // Offer to spend a key if available
+      if (keys > 0) {
+        const ok = window.confirm(
+          `החדר נעול. להשתמש במפתח בונוס כדי לפתוח אותו עכשיו? (נותרו: ${keys})`,
+        );
+        if (ok && gameActions.useKey(room.id)) {
+          sfx.doorOpen();
+          setActiveRoom(room);
+          return;
+        }
+      }
       sfx.wrong();
       return;
     }
     sfx.doorOpen();
     setActiveRoom(room);
+  }
+
+  function handleReset() {
+    if (!window.confirm("לאפס את המשחק לגמרי? כל ההתקדמות תימחק.")) return;
+    gameActions.reset();
+    setActiveRoom(null);
+    setBootOpen(false);
+    setScannerOpen(true);
   }
 
   return (
