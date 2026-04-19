@@ -49,7 +49,7 @@ function Index() {
 
   return (
     <>
-      <ScoreHud onOpenBriefing={() => setBootOpen(true)} />
+      <ScoreHud onOpenBriefing={() => setBootOpen(true)} totalSeconds={1800} />
 
       <BootScreen open={bootOpen} onClose={() => setBootOpen(false)} />
 
@@ -137,9 +137,14 @@ function Index() {
                   className={`group relative rounded-2xl overflow-hidden border bg-card/40 backdrop-blur-sm transition-all duration-500 text-right ${
                     isLocked
                       ? "border-destructive/40 cursor-not-allowed opacity-70"
+                      : isSolved
+                      ? "border-success/70 shadow-[0_0_30px_oklch(0.78_0.2_155/30%)] hover:scale-[1.02]"
                       : "border-border hover:scale-[1.03] hover:border-primary/60 hover:shadow-neon-cyan"
                   }`}
                 >
+                  {isSolved && (
+                    <div className="pointer-events-none absolute inset-0 z-20 bg-[oklch(0.78_0.22_155/22%)] mix-blend-screen" />
+                  )}
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <img
                       src={room.image}
@@ -175,8 +180,8 @@ function Index() {
                         {isSolved ? "פתור" : isLocked ? `נעול · ${turnsLeft}` : "פתוח"}
                       </span>
                     </div>
-                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-background/85 backdrop-blur font-display font-black text-base text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                      <span className={`text-glow-cyan`}>{room.number}</span>
+                    <div dir="ltr" className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-background/85 backdrop-blur font-display font-black text-base text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                      <span className="text-glow-cyan">{room.number}</span>
                       <span className="text-foreground/60"> / 7</span>
                     </div>
 

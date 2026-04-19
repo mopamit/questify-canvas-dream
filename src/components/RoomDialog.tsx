@@ -132,8 +132,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
           <div className="absolute bottom-4 right-6 left-6 text-right">
             <div className="inline-flex items-center gap-2 text-[11px] font-display tracking-[0.3em] text-foreground/85 mb-2 px-2.5 py-0.5 rounded-full bg-background/70 backdrop-blur">
               <span>חדר</span>
-              <span className={`font-bold ${a.text}`}>{room.number}</span>
-              <span>/ 7</span>
+              <span dir="ltr" className={`font-bold ${a.text}`}>{room.number} / 7</span>
             </div>
             <h1 className={`text-2xl sm:text-4xl font-display font-black ${a.text} drop-shadow-[0_4px_20px_rgba(0,0,0,0.6)]`}>
               {room.title}
