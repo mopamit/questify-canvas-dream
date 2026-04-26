@@ -219,7 +219,10 @@ function Index() {
             {rooms.map((room) => {
               const isSolved = !!solved[room.id];
               const isLocked = gameActions.isLocked(room.id);
-              const turnsLeft = gameActions.turnsUntilUnlock(room.id);
+              const secondsLeft = gameActions.secondsUntilUnlock(room.id);
+              const lockMm = String(Math.floor(secondsLeft / 60)).padStart(1, "0");
+              const lockSs = String(secondsLeft % 60).padStart(2, "0");
+              const lockLabel = `${lockMm}:${lockSs}`;
               return (
                 <button
                   key={room.id}
