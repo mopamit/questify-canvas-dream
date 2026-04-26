@@ -27,7 +27,7 @@ const accentDot: Record<string, string> = {
 };
 
 function Index() {
-  const { solved, score, playerName, keys } = useGame();
+  const { solved, score, playerName, keys, gameFinishedAt, timeBonus } = useGame();
   const solvedCount = Object.values(solved).filter(Boolean).length;
   const allDone = solvedCount === rooms.length;
 
