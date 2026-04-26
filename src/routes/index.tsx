@@ -316,16 +316,61 @@ function Index() {
                       <span className="text-foreground/60"> / 7</span>
                     </div>
 
-                    {/* Lock overlay */}
+                    {/* Lock overlay — large 3D padlock blocks the room */}
                     {isLocked && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px]">
+                      <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/70 backdrop-blur-[3px]">
                         <div className="text-center">
-                          <div className="text-5xl mb-2 lock-icon">🔒</div>
-                          <div className="text-xs font-display tracking-wider text-destructive">
+                          <svg
+                            viewBox="0 0 120 150"
+                            className="mx-auto w-28 sm:w-32 lock-icon drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]"
+                            aria-hidden="true"
+                          >
+                            <defs>
+                              <linearGradient id={`shackle-${room.id}`} x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stopColor="oklch(0.92 0.02 250)" />
+                                <stop offset="45%" stopColor="oklch(0.7 0.04 250)" />
+                                <stop offset="100%" stopColor="oklch(0.35 0.03 250)" />
+                              </linearGradient>
+                              <linearGradient id={`body-${room.id}`} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="oklch(0.85 0.18 70)" />
+                                <stop offset="55%" stopColor="oklch(0.65 0.2 60)" />
+                                <stop offset="100%" stopColor="oklch(0.35 0.12 50)" />
+                              </linearGradient>
+                              <radialGradient id={`shine-${room.id}`} cx="0.3" cy="0.25" r="0.6">
+                                <stop offset="0%" stopColor="white" stopOpacity="0.55" />
+                                <stop offset="60%" stopColor="white" stopOpacity="0" />
+                              </radialGradient>
+                            </defs>
+                            {/* Shackle */}
+                            <path
+                              d="M35 70 V50 a25 25 0 0 1 50 0 V70"
+                              fill="none"
+                              stroke={`url(#shackle-${room.id})`}
+                              strokeWidth="12"
+                              strokeLinecap="round"
+                            />
+                            {/* Body */}
+                            <rect
+                              x="20"
+                              y="65"
+                              width="80"
+                              height="70"
+                              rx="12"
+                              fill={`url(#body-${room.id})`}
+                              stroke="oklch(0.25 0.06 50)"
+                              strokeWidth="2"
+                            />
+                            {/* Shine */}
+                            <rect x="20" y="65" width="80" height="70" rx="12" fill={`url(#shine-${room.id})`} />
+                            {/* Keyhole */}
+                            <circle cx="60" cy="95" r="8" fill="oklch(0.18 0.02 50)" />
+                            <rect x="56" y="100" width="8" height="18" rx="2" fill="oklch(0.18 0.02 50)" />
+                          </svg>
+                          <div className="mt-3 text-sm font-display tracking-wider text-destructive font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
                             נפתח בעוד {lockLabel}
                           </div>
                           {keys > 0 && (
-                            <div className="mt-2 text-[10px] font-display tracking-[0.2em] text-[oklch(0.78_0.18_70)] animate-pulse">
+                            <div className="mt-2 text-[10px] font-display tracking-[0.2em] text-[oklch(0.85_0.18_70)] animate-pulse">
                               גררו לכאן 🗝️ כדי לפתוח
                             </div>
                           )}
