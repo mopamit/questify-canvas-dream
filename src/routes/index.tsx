@@ -280,7 +280,7 @@ function Index() {
                             : "text-foreground/85"
                         }
                       >
-                        {isSolved ? "פתור" : isLocked ? `נעול · ${turnsLeft}` : "פתוח"}
+                        {isSolved ? "פתור" : isLocked ? `נעול · ${lockLabel}` : "פתוח"}
                       </span>
                     </div>
                     <div dir="ltr" className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-background/85 backdrop-blur font-display font-black text-base text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
@@ -294,7 +294,7 @@ function Index() {
                         <div className="text-center">
                           <div className="text-5xl mb-2 lock-icon">🔒</div>
                           <div className="text-xs font-display tracking-wider text-destructive">
-                            נעול ל־{turnsLeft} {turnsLeft === 1 ? "תור" : "תורות"}
+                            נפתח בעוד {lockLabel}
                           </div>
                           {keys > 0 && (
                             <div className="mt-2 text-[10px] font-display tracking-[0.2em] text-[oklch(0.78_0.18_70)] animate-pulse">
