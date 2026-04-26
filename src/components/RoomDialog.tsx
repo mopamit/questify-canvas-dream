@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { gameActions, useGame } from "@/lib/game-store";
-import type { Room } from "@/lib/game-data";
+import { rooms, type Room } from "@/lib/game-data";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { sfx } from "@/lib/sound";
 
@@ -121,8 +121,10 @@ export function RoomDialog({ room, open, onClose }: Props) {
     }
 
     const result = gameActions.answer(room.id, opt.correct);
-    if (opt.correct) sfx.correct();
-    else sfx.wrong();
+    if (opt.correct) {
+      sfx.correct();
+      gameActions.finalizeIfDone(rooms.length);
+    } else sfx.wrong();
     setFeedback({
       correctPicked: opt.correct,
       delta: result.delta,
