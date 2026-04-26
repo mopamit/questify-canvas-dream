@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { gameActions, useGame } from "@/lib/game-store";
-import type { Room } from "@/lib/game-data";
+import { rooms, type Room } from "@/lib/game-data";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { sfx } from "@/lib/sound";
 
@@ -121,8 +121,10 @@ export function RoomDialog({ room, open, onClose }: Props) {
     }
 
     const result = gameActions.answer(room.id, opt.correct);
-    if (opt.correct) sfx.correct();
-    else sfx.wrong();
+    if (opt.correct) {
+      sfx.correct();
+      gameActions.finalizeIfDone(rooms.length);
+    } else sfx.wrong();
     setFeedback({
       correctPicked: opt.correct,
       delta: result.delta,
@@ -426,7 +428,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
                     {feedback.wrongReason ?? "זו אינה התשובה הנכונה."}
                   </p>
                   <div className="text-xs font-display tracking-wider text-destructive/90">
-                    🔒 החדר נעול ל־2 תורות. חוזרים למסדרון בעוד {closingIn} שניות…
+                    🔒 החדר נעול ל־3 דקות. חוזרים למסדרון בעוד {closingIn} שניות…
                   </div>
                 </>
               )}

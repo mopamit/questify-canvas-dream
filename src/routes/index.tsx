@@ -27,7 +27,7 @@ const accentDot: Record<string, string> = {
 };
 
 function Index() {
-  const { solved, score, playerName, keys } = useGame();
+  const { solved, score, playerName, keys, gameFinishedAt, timeBonus } = useGame();
   const solvedCount = Object.values(solved).filter(Boolean).length;
   const allDone = solvedCount === rooms.length;
 
@@ -188,12 +188,40 @@ function Index() {
               בזכותכם הוא חזר לחיות בבטחה.
             </p>
 
-            <p className="text-foreground/85 mb-1">
-              ניקוד סופי:{" "}
-              <span className="font-display font-black text-3xl text-accent text-glow-magenta align-middle">
-                {score}
-              </span>
-            </p>
+            {/* Elapsed time + score breakdown */}
+            {(() => {
+              const elapsed = gameActions.elapsedSeconds();
+              const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+              const ss = String(elapsed % 60).padStart(2, "0");
+              const baseScore = score - (gameFinishedAt ? timeBonus : 0);
+              return (
+                <div className="mx-auto max-w-md mb-4 rounded-xl border border-primary/40 bg-black/50 px-5 py-4 text-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-foreground/80">זמן השלמה</span>
+                    <span dir="ltr" className="font-mono font-bold text-primary text-glow-cyan text-lg">
+                      {mm}:{ss}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-foreground/70 mb-1">
+                    <span>ניקוד מפתרון חידות</span>
+                    <span className="font-display font-bold">{baseScore}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-foreground/70 mb-1">
+                    <span>בונוס מהירות</span>
+                    <span className={`font-display font-bold ${timeBonus > 0 ? "text-success" : "text-muted-foreground"}`}>
+                      +{timeBonus}
+                    </span>
+                  </div>
+                  <div className="h-px bg-border my-2" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground/85">ניקוד סופי</span>
+                    <span className="font-display font-black text-3xl text-accent text-glow-magenta">
+                      {score}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
             <button
               onClick={handleReset}
               className="mt-4 px-6 py-3 rounded-xl border border-border bg-secondary hover:bg-secondary/70 font-display"
@@ -219,7 +247,10 @@ function Index() {
             {rooms.map((room) => {
               const isSolved = !!solved[room.id];
               const isLocked = gameActions.isLocked(room.id);
-              const turnsLeft = gameActions.turnsUntilUnlock(room.id);
+              const secondsLeft = gameActions.secondsUntilUnlock(room.id);
+              const lockMm = String(Math.floor(secondsLeft / 60)).padStart(1, "0");
+              const lockSs = String(secondsLeft % 60).padStart(2, "0");
+              const lockLabel = `${lockMm}:${lockSs}`;
               return (
                 <button
                   key={room.id}
@@ -277,7 +308,7 @@ function Index() {
                             : "text-foreground/85"
                         }
                       >
-                        {isSolved ? "פתור" : isLocked ? `נעול · ${turnsLeft}` : "פתוח"}
+                        {isSolved ? "פתור" : isLocked ? `נעול · ${lockLabel}` : "פתוח"}
                       </span>
                     </div>
                     <div dir="ltr" className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-background/85 backdrop-blur font-display font-black text-base text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
@@ -291,7 +322,7 @@ function Index() {
                         <div className="text-center">
                           <div className="text-5xl mb-2 lock-icon">🔒</div>
                           <div className="text-xs font-display tracking-wider text-destructive">
-                            נעול ל־{turnsLeft} {turnsLeft === 1 ? "תור" : "תורות"}
+                            נפתח בעוד {lockLabel}
                           </div>
                           {keys > 0 && (
                             <div className="mt-2 text-[10px] font-display tracking-[0.2em] text-[oklch(0.78_0.18_70)] animate-pulse">
