@@ -203,8 +203,8 @@ function Index() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-foreground/70 mb-1">
-                    <span>נקודות מפתרון חידות</span>
-                    <span className="font-display font-bold">{baseScore - timeBonus + timeBonus /* readable */}{""}</span>
+                    <span>ניקוד מפתרון חידות</span>
+                    <span className="font-display font-bold">{baseScore}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-foreground/70 mb-1">
                     <span>בונוס מהירות</span>
