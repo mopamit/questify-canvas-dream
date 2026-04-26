@@ -188,12 +188,40 @@ function Index() {
               בזכותכם הוא חזר לחיות בבטחה.
             </p>
 
-            <p className="text-foreground/85 mb-1">
-              ניקוד סופי:{" "}
-              <span className="font-display font-black text-3xl text-accent text-glow-magenta align-middle">
-                {score}
-              </span>
-            </p>
+            {/* Elapsed time + score breakdown */}
+            {(() => {
+              const elapsed = gameActions.elapsedSeconds();
+              const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+              const ss = String(elapsed % 60).padStart(2, "0");
+              const baseScore = score - (gameFinishedAt ? timeBonus : 0);
+              return (
+                <div className="mx-auto max-w-md mb-4 rounded-xl border border-primary/40 bg-black/50 px-5 py-4 text-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-foreground/80">זמן השלמה</span>
+                    <span dir="ltr" className="font-mono font-bold text-primary text-glow-cyan text-lg">
+                      {mm}:{ss}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-foreground/70 mb-1">
+                    <span>נקודות מפתרון חידות</span>
+                    <span className="font-display font-bold">{baseScore - timeBonus + timeBonus /* readable */}{""}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-foreground/70 mb-1">
+                    <span>בונוס מהירות</span>
+                    <span className={`font-display font-bold ${timeBonus > 0 ? "text-success" : "text-muted-foreground"}`}>
+                      +{timeBonus}
+                    </span>
+                  </div>
+                  <div className="h-px bg-border my-2" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground/85">ניקוד סופי</span>
+                    <span className="font-display font-black text-3xl text-accent text-glow-magenta">
+                      {score}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
             <button
               onClick={handleReset}
               className="mt-4 px-6 py-3 rounded-xl border border-border bg-secondary hover:bg-secondary/70 font-display"
