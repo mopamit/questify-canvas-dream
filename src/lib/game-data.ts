@@ -13,11 +13,11 @@ import holoBacteria from "@/assets/holo-bacteria.png";
 import holoWaterplant from "@/assets/holo-waterplant.png";
 import holoEagle from "@/assets/holo-eagle.png";
 import holoWhale from "@/assets/holo-whale.png";
-import holoWorm from "@/assets/holo-worm.png";
+import holoYeast from "@/assets/holo-yeast.png";
 import holoHorse from "@/assets/holo-horse.png";
 import holoBlubber from "@/assets/holo-blubber.png";
-import holoTeeth from "@/assets/holo-teeth.png";
-import holoOwl from "@/assets/holo-owl.png";
+import holoDesertMouse from "@/assets/holo-desert-mouse.png";
+import holoFennec from "@/assets/holo-fennec.png";
 import holoOak from "@/assets/holo-oak.png";
 import holoAlgae from "@/assets/holo-algae.png";
 import holoCaveBacteria from "@/assets/holo-cave-bacteria.png";
@@ -48,6 +48,8 @@ export type Room = {
   subtitle: string;
   image: string;
   accent: "cyan" | "magenta" | "green" | "amber" | "violet" | "red" | "blue";
+  /** Intro text about the survival need — shown highlighted before the question */
+  intro: string;
   question: string;
   options: Option[];
   /** Explanation shown after answering correctly */
@@ -64,6 +66,8 @@ export const rooms: Room[] = [
     subtitle: "מים",
     image: roomWater,
     accent: "cyan",
+    intro:
+      "המים חשובים לתפקוד הגוף שלנו. הם עוזרים להוליך חומרים בתאים, שומרים על טמפרטורת הגוף ומפנים פסולת מהגוף. בגלל צורך קיום חשוב זה הותאמו יצורים מיוחדים למחסור במים.",
     question: "מי לא מותאם למחסור במים?",
     options: [
       {
@@ -107,6 +111,8 @@ export const rooms: Room[] = [
     subtitle: "מזון",
     image: roomFood,
     accent: "green",
+    intro:
+      "המזון נותן לנו את האנרגיה והחומרים הדרושים לבניית הגוף ולשמירה על הבריאות. הוא חיוני לכל יצור חי. יצורים שונים מפיקים או מקבלים את המזון שלהם בדרכים שונות.",
     question: "אם כל החומרים האורגניים ייעלמו מהסביבה – מי ייפגע יותר מכל?",
     options: [
       { label: "חיידק מפרק חומר אורגני", correct: true },
@@ -150,6 +156,8 @@ export const rooms: Room[] = [
     subtitle: "חמצן",
     image: roomOxygen,
     accent: "blue",
+    intro:
+      "יצור חי זקוק לחמצן כדי לנשום ולהפיק אנרגיה מהמזון. החמצן מאפשר לנו לחיות ולהתפקד. הדרכים להשגת החמצן מגוונות וישנם מקרים בהם לטבע אפשרות להסתדר גם ללא חמצן.",
     question: "מי מהיצורים יכול לשרוד הכי הרבה זמן ללא חמצן?",
     options: [
       {
@@ -158,7 +166,7 @@ export const rooms: Room[] = [
         wrongReason:
           "לוויתן יכול לעצור נשימה לזמן ארוך (עד שעתיים) — אבל בסופו של דבר הוא חייב לעלות לאוויר. הוא יונק נושם חמצן.",
       },
-      { label: "תולעת מעי", correct: true },
+      { label: "שמרים", correct: true },
       {
         label: "סוס",
         correct: false,
@@ -167,7 +175,7 @@ export const rooms: Room[] = [
       },
     ],
     explanation:
-      "תולעי מעיים מסוימות הן אנאירוביות — הן חיות בסביבות נטולות חמצן (כמו מערכת העיכול) ומפיקות אנרגיה דרך תהליכי תסיסה במקום נשימה רגילה.",
+      "שמרים יכולים לחיות גם בלי חמצן — בהיעדרו הם מבצעים תסיסה והופכים סוכר לאתנול ולפחמן דו-חמצני. תהליך זה מנוצל באפיית לחם ובהכנת יין ובירה.",
     facts: [
       {
         name: "לוויתן",
@@ -175,9 +183,9 @@ export const rooms: Room[] = [
         fact: "יונק ימי ענק שיכול לעצור נשימה לזמנים ארוכים (לוויתן הזרע — עד שעתיים בצלילה). אבל הוא חייב לעלות לפני המים כדי לנשום אוויר.",
       },
       {
-        name: "תולעת מעי",
-        image: holoWorm,
-        fact: "טפיל החי בתוך מערכת העיכול של בעלי חיים — סביבה כמעט נטולת חמצן. מסוגלת להפיק אנרגיה ללא חמצן (אנאירובית) ולחיות שם תקופות ארוכות מאוד.",
+        name: "שמרים",
+        image: holoYeast,
+        fact: "שמרים הם פטריות חד-תאיות זעירות שיכולות לחיות גם בלי חמצן. בנוכחות חמצן הם מפיקים אנרגיה ביעילות, ובהיעדרו מבצעים תסיסה — הופכים סוכר לאתנול ולפחמן דו-חמצני. כך אופים לחם ומכינים יין ובירה.",
       },
       {
         name: "סוס",
@@ -193,20 +201,22 @@ export const rooms: Room[] = [
     subtitle: "טמפרטורה",
     image: roomTemp,
     accent: "red",
+    intro:
+      "לכל יצור חי יש צורך בטמפרטורה יציבה בגוף כדי שהמערכות הפיזיולוגיות יתפקדו כראוי. אנחנו צריכים לשמור על חום הגוף. יש יצורים שמותאמים לחום גבוה ויש כאלו שדווקא לקור.",
     question: "איזו התאמה עוזרת לבעלי חיים לשרוד בקור קיצוני?",
     options: [
       { label: "שכבת שומן עבה", correct: true },
       {
-        label: "שיניים חדות",
+        label: "עכבר חולות פעיל בלילה",
         correct: false,
         wrongReason:
-          "שיניים חדות עוזרות לטרוף וללעוס בשר — הן לא קשורות לוויסות חום. דובי קוטב יש להם שיניים חדות, אבל מה ששומר עליהם בקור זו שכבת השומן והפרווה.",
+          "עכברי החול במדבר פעילים בשעות הלילה הקרירות כדי להימנע מחום היום — זו התאמה לחום קיצוני, לא לקור.",
       },
       {
-        label: "ראייה לילית",
+        label: "אוזניים גדולות של שועל החולות",
         correct: false,
         wrongReason:
-          "ראייה לילית עוזרת לצוד בחושך — היא לא מגנה מקור. רוב האזורים הקרים בעולם דווקא בהירים מאוד (השלג מחזיר אור).",
+          "האוזניים הגדולות של שועל החולות מסייעות לפזר חום מהגוף ולשמור על טמפרטורה יציבה בחום — זו התאמה לחום מדברי, לא לקור קיצוני.",
       },
     ],
     explanation:
@@ -218,14 +228,14 @@ export const rooms: Room[] = [
         fact: "רקמה שומנית שמבודדת את הגוף משינויי טמפרטורה חיצוניים. יעילה במיוחד באזורים קרים — לוויתנים ופוקות עטופים בשכבת בלובר של עד 30 ס\"מ.",
       },
       {
-        name: "שיניים חדות",
-        image: holoTeeth,
-        fact: "התאמה תזונתית של טורפים — מסייעות בתפיסת טרף וקריעת בשר. אין להן שום קשר לוויסות חום הגוף.",
+        name: "עכבר חולות",
+        image: holoDesertMouse,
+        fact: "עכברי החול במדבר משתמשים בשעות הלילה הקרירות כדי להיות פעילים, כשהחום פחות חזק, ובכך נמנעים מחשיפה לשמש הקופחת של היום.",
       },
       {
-        name: "ראייה לילית",
-        image: holoOwl,
-        fact: "התאמה לפעילות בחושך, נפוצה בטורפים ליליים. עוזרת בציד אבל לא מגנה מטמפרטורה קיצונית.",
+        name: "שועל החולות",
+        image: holoFennec,
+        fact: "האוזניים הגדולות של שועל החולות מסייעות לו לפזר חום מהגוף ולשמור על טמפרטורה יציבה — מנגנון שעוזר לו להימנע מחום קיצוני במהלך היום החם במדבר.",
       },
     ],
   },
@@ -236,6 +246,8 @@ export const rooms: Room[] = [
     subtitle: "אור",
     image: roomLight,
     accent: "violet",
+    intro:
+      "אור הוא צורך קיומי מאוד חשוב לכל החיים. בלי אור, לא היו יכולים לצמוח צמחים, וזה היה משפיע על כל שאר היצורים החיים.",
     question: "מי מבין הבאים אינו זקוק לאור שמש כדי להתקיים?",
     options: [
       {
@@ -279,6 +291,8 @@ export const rooms: Room[] = [
     subtitle: "מצע",
     image: roomSoil,
     accent: "amber",
+    intro:
+      "צמחים זקוקים לקרקע כדי לשתול את שורשיהם ולקבל ממנה מים ומינרלים. בעלי חיים משתמשים גם בקרקע כמקום מחיה ומסתור.",
     question: "איזה מצע מתאים ביותר ליצור שחי במחילות תת-קרקעיות?",
     options: [
       {
@@ -322,6 +336,8 @@ export const rooms: Room[] = [
     subtitle: "אמצעי הגנה",
     image: roomDefense,
     accent: "magenta",
+    intro:
+      "ההגנה חיונית להישרדות ולהמשכיות המין, ומאפשרת ליצורים חיים להתמודד עם איומים מהסביבה.",
     question: "איזה אמצעי הגנה הוא הכי יעיל מול טורף שמסתמך על ראייה?",
     options: [
       { label: "הסוואה (קמופלאז')", correct: true },
