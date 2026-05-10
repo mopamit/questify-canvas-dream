@@ -45,7 +45,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
       setFeedback(null);
       setOpenCard(null);
       setViewed(new Set());
-      setClosingIn(0);
+      
       setActivating(null);
       gameActions.startRoom(room.id);
     }
