@@ -51,22 +51,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
     }
   }, [open, room]);
 
-  // Auto-close countdown after wrong answer (4s)
-  useEffect(() => {
-    if (!feedback || feedback.correctPicked) return;
-    setClosingIn(4);
-    const interval = setInterval(() => {
-      setClosingIn((c) => {
-        if (c <= 1) {
-          clearInterval(interval);
-          onClose();
-          return 0;
-        }
-        return c - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [feedback, onClose]);
+  // (no auto-close on wrong answer — rooms no longer lock)
 
   if (!room) return null;
   const a = accentMap[room.accent];
