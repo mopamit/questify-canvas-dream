@@ -422,7 +422,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
                     {feedback.wrongReason ?? "זו אינה התשובה הנכונה."}
                   </p>
                   <div className="text-xs font-display tracking-wider text-destructive/90">
-                    🔒 החדר נעול ל־3 דקות. חוזרים למסדרון בעוד {closingIn} שניות…
+                    נסו שוב או חזרו למסדרון.
                   </div>
                 </>
               )}
