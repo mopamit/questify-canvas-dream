@@ -429,22 +429,32 @@ export function RoomDialog({ room, open, onClose }: Props) {
             </div>
           )}
 
-          {/* Footer — return button hidden after a wrong answer (auto-close handles it) */}
-          {(!feedback || feedback.correctPicked) && (
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch">
+          {/* Footer */}
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch">
+            {feedback && !feedback.correctPicked && (
               <button
-                onClick={onClose}
-                className="flex-1 py-3 px-5 rounded-xl border border-border bg-secondary/70 font-display font-semibold transition-all hover:bg-[oklch(0.85_0.18_150)]/30 hover:border-[oklch(0.85_0.20_150)] hover:text-[oklch(0.95_0.15_150)] hover:shadow-[0_0_20px_oklch(0.75_0.22_150/0.6),inset_0_0_15px_oklch(0.75_0.22_150/0.25)]"
+                onClick={() => {
+                  setFeedback(null);
+                  setSelected(null);
+                }}
+                className="flex-1 py-3 px-5 rounded-xl border border-accent/60 bg-accent/10 text-accent font-display font-semibold transition-all hover:bg-accent/20"
               >
-                חזרה למסדרון →
+                נסו שוב ↻
               </button>
-              {feedback?.correctPicked && (
-                <div className="flex-1 py-3 px-5 rounded-xl bg-gradient-neon font-display font-bold text-background text-center tracking-wider">
-                  ✓ החדר נפתר
-                </div>
-              )}
-            </div>
-          )}
+            )}
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 px-5 rounded-xl border border-border bg-secondary/70 font-display font-semibold transition-all hover:bg-[oklch(0.85_0.18_150)]/30 hover:border-[oklch(0.85_0.20_150)] hover:text-[oklch(0.95_0.15_150)] hover:shadow-[0_0_20px_oklch(0.75_0.22_150/0.6),inset_0_0_15px_oklch(0.75_0.22_150/0.25)]"
+            >
+              חזרה למסדרון →
+            </button>
+            {feedback?.correctPicked && (
+              <div className="flex-1 py-3 px-5 rounded-xl bg-gradient-neon font-display font-bold text-background text-center tracking-wider">
+                ✓ החדר נפתר
+              </div>
+            )}
+          </div>
+
         </div>
       </DialogContent>
     </Dialog>
