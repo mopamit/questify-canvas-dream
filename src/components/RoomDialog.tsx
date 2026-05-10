@@ -351,6 +351,15 @@ export function RoomDialog({ room, open, onClose }: Props) {
             </div>
           </div>
 
+          {/* Intro — survival-need context */}
+          {room.intro && (
+            <div className="mb-5 p-4 rounded-xl border border-destructive/40 bg-destructive/10 text-right">
+              <p className="text-sm sm:text-base leading-relaxed text-destructive font-medium">
+                {room.intro}
+              </p>
+            </div>
+          )}
+
           {/* Question */}
           <h2 className="text-lg sm:text-xl font-display font-bold mb-5 leading-relaxed text-center">
             {room.question}
