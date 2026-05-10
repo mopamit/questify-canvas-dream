@@ -35,7 +35,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [viewed, setViewed] = useState<Set<number>>(new Set());
-  const [closingIn, setClosingIn] = useState<number>(0);
+  
   const [activating, setActivating] = useState<number | null>(null);
 
   // Reset state whenever a new room opens
