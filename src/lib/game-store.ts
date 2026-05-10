@@ -164,16 +164,13 @@ export const gameActions = {
       return { delta, keyEarned: earnsKey };
     } else {
       const delta = WRONG_PENALTY;
-      const reopenAt = Date.now() + LOCK_DURATION_MS;
       state = {
         ...state,
         score: state.score + delta,
         streak: 0,
-        lockedUntil: { ...state.lockedUntil, [roomId]: reopenAt },
-        startedAt: { ...state.startedAt, [roomId]: 0 },
       };
       persist();
-      return { delta, reopenAt };
+      return { delta };
     }
   },
   /**

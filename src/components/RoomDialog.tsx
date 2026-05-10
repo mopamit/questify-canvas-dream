@@ -35,7 +35,7 @@ export function RoomDialog({ room, open, onClose }: Props) {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [openCard, setOpenCard] = useState<number | null>(null);
   const [viewed, setViewed] = useState<Set<number>>(new Set());
-  const [closingIn, setClosingIn] = useState<number>(0);
+  
   const [activating, setActivating] = useState<number | null>(null);
 
   // Reset state whenever a new room opens
@@ -45,28 +45,13 @@ export function RoomDialog({ room, open, onClose }: Props) {
       setFeedback(null);
       setOpenCard(null);
       setViewed(new Set());
-      setClosingIn(0);
+      
       setActivating(null);
       gameActions.startRoom(room.id);
     }
   }, [open, room]);
 
-  // Auto-close countdown after wrong answer (4s)
-  useEffect(() => {
-    if (!feedback || feedback.correctPicked) return;
-    setClosingIn(4);
-    const interval = setInterval(() => {
-      setClosingIn((c) => {
-        if (c <= 1) {
-          clearInterval(interval);
-          onClose();
-          return 0;
-        }
-        return c - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [feedback, onClose]);
+  // (no auto-close on wrong answer — rooms no longer lock)
 
   if (!room) return null;
   const a = accentMap[room.accent];
@@ -437,29 +422,39 @@ export function RoomDialog({ room, open, onClose }: Props) {
                     {feedback.wrongReason ?? "זו אינה התשובה הנכונה."}
                   </p>
                   <div className="text-xs font-display tracking-wider text-destructive/90">
-                    🔒 החדר נעול ל־3 דקות. חוזרים למסדרון בעוד {closingIn} שניות…
+                    נסו שוב או חזרו למסדרון.
                   </div>
                 </>
               )}
             </div>
           )}
 
-          {/* Footer — return button hidden after a wrong answer (auto-close handles it) */}
-          {(!feedback || feedback.correctPicked) && (
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch">
+          {/* Footer */}
+          <div className="mt-8 flex flex-col sm:flex-row gap-3 items-stretch">
+            {feedback && !feedback.correctPicked && (
               <button
-                onClick={onClose}
-                className="flex-1 py-3 px-5 rounded-xl border border-border bg-secondary/70 font-display font-semibold transition-all hover:bg-[oklch(0.85_0.18_150)]/30 hover:border-[oklch(0.85_0.20_150)] hover:text-[oklch(0.95_0.15_150)] hover:shadow-[0_0_20px_oklch(0.75_0.22_150/0.6),inset_0_0_15px_oklch(0.75_0.22_150/0.25)]"
+                onClick={() => {
+                  setFeedback(null);
+                  setSelected(null);
+                }}
+                className="flex-1 py-3 px-5 rounded-xl border border-accent/60 bg-accent/10 text-accent font-display font-semibold transition-all hover:bg-accent/20"
               >
-                חזרה למסדרון →
+                נסו שוב ↻
               </button>
-              {feedback?.correctPicked && (
-                <div className="flex-1 py-3 px-5 rounded-xl bg-gradient-neon font-display font-bold text-background text-center tracking-wider">
-                  ✓ החדר נפתר
-                </div>
-              )}
-            </div>
-          )}
+            )}
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 px-5 rounded-xl border border-border bg-secondary/70 font-display font-semibold transition-all hover:bg-[oklch(0.85_0.18_150)]/30 hover:border-[oklch(0.85_0.20_150)] hover:text-[oklch(0.95_0.15_150)] hover:shadow-[0_0_20px_oklch(0.75_0.22_150/0.6),inset_0_0_15px_oklch(0.75_0.22_150/0.25)]"
+            >
+              חזרה למסדרון →
+            </button>
+            {feedback?.correctPicked && (
+              <div className="flex-1 py-3 px-5 rounded-xl bg-gradient-neon font-display font-bold text-background text-center tracking-wider">
+                ✓ החדר נפתר
+              </div>
+            )}
+          </div>
+
         </div>
       </DialogContent>
     </Dialog>
